@@ -22,6 +22,6 @@ func IntializeRoutes(router *gin.Engine) {
 	{
 		post_routes.POST("/", middlewares.IsLoggedIn, controllers.CreatePost)
 		post_routes.GET("/:id", controllers.GetPost)
-		// post_routes.GET("/", controllers.GetPosts)
+		post_routes.GET("/", controllers.GetPosts)
 	}
 }

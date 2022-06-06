@@ -37,3 +37,10 @@ func GetPost(c *gin.Context) {
 		"post": post,
 	})
 }
+
+func GetPosts(c *gin.Context) {
+	posts, _ := database.GetPosts()
+	c.JSON(200, gin.H{
+		"posts": posts,
+	})
+}
