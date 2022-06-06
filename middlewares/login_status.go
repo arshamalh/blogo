@@ -10,10 +10,13 @@ import (
 )
 
 func IsLoggedIn(c *gin.Context) {
-	cookie, _ := c.Cookie("jwt")
-	token, err := jwt.ParseWithClaims(cookie, &jwt.StandardClaims{}, func(t *jwt.Token) (interface{}, error) {
-		return []byte(os.Getenv("JWT_SECRET")), nil
-	})
+	jwt_token, _ := c.Cookie("jwt")
+	token, err := jwt.ParseWithClaims(
+		jwt_token, &jwt.StandardClaims{},
+		func(t *jwt.Token) (interface{}, error) {
+			return []byte(os.Getenv("JWT_SECRET")), nil
+		},
+	)
 	if err != nil || !token.Valid {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 			"message": "you are not allowed to make new posts",
