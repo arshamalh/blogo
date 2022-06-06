@@ -10,6 +10,7 @@ type User struct {
 	Username string
 	Password []byte
 	Email    string
+	Posts    []Post `gorm:"foreignKey:AuthorID"`
 }
 
 func (user *User) SetPassword(password string) {

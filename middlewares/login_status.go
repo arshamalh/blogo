@@ -15,11 +15,8 @@ func IsLoggedIn(c *gin.Context) {
 		return []byte(os.Getenv("JWT_SECRET")), nil
 	})
 	if err != nil || !token.Valid {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"messsage": "unauthenticated",
-		})
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"message": "unauthenticated",
+			"message": "you are not allowed to make new posts",
 		})
 	} else {
 		payload := token.Claims.(*jwt.StandardClaims)
