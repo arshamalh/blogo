@@ -71,3 +71,8 @@ func UserLogout(c *gin.Context) {
 	c.SetCookie("jwt", "", -1, "/", "", false, true)
 	c.JSON(http.StatusOK, gin.H{"status": "logout success"})
 }
+
+func UserID(c *gin.Context) {
+	value, _ := c.Get("user_id")
+	c.JSON(200, gin.H{"user_id": value})
+}

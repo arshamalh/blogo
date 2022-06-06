@@ -13,9 +13,9 @@ func IntializeRoutes(router *gin.Engine) {
 		user_routes.POST("/login", controllers.UserLogin)
 		user_routes.POST("/logout", controllers.UserLogout)
 		user_routes.GET("/check_username", controllers.CheckUsername)
+		user_routes.GET("/id", middlewares.IsLoggedIn, controllers.UserID)
 		// Get & Update Profile and more
-		// Show Post creation page only to logged in users,
-		//   so there should be an endpoint just to check logged in status
+		// user_routes.GET("/info/:id", controllers.UserInfo)
 	}
 
 	post_routes := router.Group("api/v1/posts")
