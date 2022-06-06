@@ -5,18 +5,11 @@ import (
 )
 
 func CheckUserExists(username string) bool {
-	results := DB.Take(&models.User{
-		Username: username,
-	})
+	results := DB.Take(&models.User{}, "username = ?", username)
 	return results.RowsAffected > 0
 }
 
-func CreateUser(username, password, email string) (uint, error) {
-	user := models.User{
-		Username: username,
-		Password: password,
-		Email:    email,
-	}
+func CreateUser(user *models.User) (uint, error) {
 	err := DB.Create(&user).Error
 	return user.ID, err
 }
