@@ -7,9 +7,9 @@ import (
 
 type User struct {
 	gorm.Model
-	Username string
-	Password []byte
-	Email    string
+	Username string `json:"username"`
+	Password []byte `json:"-"`
+	Email    string `json:"email"`
 	Posts    []Post `gorm:"foreignKey:AuthorID"`
 }
 
