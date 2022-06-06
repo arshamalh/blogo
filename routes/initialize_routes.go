@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func IntializeRoutes(router *gin.Engine) error {
+func IntializeRoutes(router *gin.Engine) {
 	user_routes := router.Group("/api/v1/users")
 	{
 		user_routes.POST("/register", controllers.UserRegister)
@@ -14,5 +14,4 @@ func IntializeRoutes(router *gin.Engine) error {
 		user_routes.GET("/check_username", controllers.CheckUsername)
 		// Get & Update Profile and more
 	}
-	return nil
 }

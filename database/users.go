@@ -13,3 +13,9 @@ func CreateUser(user *models.User) (uint, error) {
 	err := DB.Create(&user).Error
 	return user.ID, err
 }
+
+func GetUserByUsername(username string) (*models.User, error) {
+	user := &models.User{}
+	err := DB.First(&user, "username = ?", username).Error
+	return user, err
+}
