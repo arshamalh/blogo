@@ -7,10 +7,12 @@ import (
 
 type User struct {
 	gorm.Model
-	Username string `json:"username"`
-	Password []byte `json:"-"`
-	Email    string `json:"email"`
-	Posts    []Post `gorm:"foreignKey:AuthorID"`
+	Username  string `json:"username"`
+	Password  []byte `json:"-"`
+	Email     string `json:"email"`
+	FisrtName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Posts     []Post `gorm:"foreignKey:AuthorID"`
 }
 
 func (user *User) SetPassword(password string) {
