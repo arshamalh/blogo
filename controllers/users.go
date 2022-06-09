@@ -8,8 +8,8 @@ import (
 
 	"github.com/arshamalh/blogo/database"
 	"github.com/arshamalh/blogo/models"
+	"github.com/arshamalh/blogo/tools"
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt"
 )
 
 type UserRegisterRequest struct {
@@ -60,13 +60,12 @@ func UserLogin(c *gin.Context) {
 	if c.BindJSON(&user) == nil {
 		if db_user, _ := database.GetUserByUsername(user.Username); db_user.ID != 0 {
 			if db_user.ComparePasswords(user.Password) == nil {
-				payload := jwt.StandardClaims{
-					Subject:   strconv.Itoa(int(db_user.ID)),
-					ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
-				}
-				token, _ := jwt.NewWithClaims(jwt.SigningMethodHS256, payload).SignedString([]byte(os.Getenv("JWT_SECRET")))
-				c.SetCookie("jwt", token, 86400, "/", "", false, true)
-				c.JSON(http.StatusOK, gin.H{"status": "login success", "token": token})
+				db_user_id := strconv.Itoa(int(db_user.ID))
+				access_token, _ := tools.GenerateToken(db_user_id, time.Hour*1, os.Getenv("JWT_SECRET"))
+				refresh_token, _ := tools.GenerateToken(db_user_id, time.Hour*24*7, os.Getenv("REFRESH_TOKEN_SECRET"))
+				c.SetCookie("access_token", access_token, 3600, "/", "", false, true)
+				c.SetCookie("refresh_token", refresh_token, 3600*24*7, "/refresh_token", "", false, true)
+				c.JSON(http.StatusOK, gin.H{"status": "login success"})
 			} else {
 				c.JSON(http.StatusUnauthorized, gin.H{"status": "wrong password"})
 			}
@@ -76,8 +75,28 @@ func UserLogin(c *gin.Context) {
 	}
 }
 
+// This route should include refresh token and will return new access token
+func RefreshToken(c *gin.Context) {
+	refresh_token, err := c.Cookie("refresh_token")
+	if err != nil || refresh_token == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"status": "you are logged out"})
+		return
+	}
+	jwt, err := tools.ExtractTokenData(refresh_token, os.Getenv("REFRESH_TOKEN_SECRET"))
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"status": "you are logged out"})
+		return
+	}
+	access_token, _ := tools.GenerateToken(jwt.Subject, time.Hour*1, os.Getenv("JWT_SECRET"))
+	refresh_token, _ = tools.GenerateToken(jwt.Subject, time.Hour*24*7, os.Getenv("REFRESH_TOKEN_SECRET"))
+	c.SetCookie("access_token", access_token, 3600, "/", "", false, true)
+	c.SetCookie("refresh_token", refresh_token, 3600*24*7, "/refresh_token", "", false, true)
+	c.JSON(http.StatusOK, gin.H{"status": "token refreshed"})
+}
+
 func UserLogout(c *gin.Context) {
-	c.SetCookie("jwt", "", -1, "/", "", false, true)
+	c.SetCookie("refresh_token", "", -1, "/refresh_token", "", false, true)
+	c.SetCookie("access_token", "", -1, "/", "", false, true)
 	c.JSON(http.StatusOK, gin.H{"status": "logout success"})
 }
 

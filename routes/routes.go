@@ -11,6 +11,7 @@ func IntializeRoutes(router *gin.Engine) {
 	{
 		user_routes.POST("/register", controllers.UserRegister)
 		user_routes.POST("/login", controllers.UserLogin)
+		user_routes.POST("/refresh_token", controllers.RefreshToken)
 		user_routes.POST("/logout", controllers.UserLogout)
 		user_routes.GET("/check_username", controllers.CheckUsername)
 		user_routes.GET("/id", middlewares.IsLoggedIn, controllers.UserID)
