@@ -7,6 +7,7 @@ import (
 )
 
 func IntializeRoutes(router *gin.Engine) {
+	router.Use(middlewares.CORSMiddleware())
 	user_routes := router.Group("/api/v1/users")
 	{
 		user_routes.POST("/register", controllers.UserRegister)
