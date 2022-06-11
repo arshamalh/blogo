@@ -8,6 +8,7 @@ import (
 
 	"github.com/arshamalh/blogo/database"
 	"github.com/arshamalh/blogo/models"
+	"github.com/arshamalh/blogo/session"
 	"github.com/arshamalh/blogo/tools"
 	"github.com/gin-gonic/gin"
 )
@@ -56,46 +57,43 @@ func CheckUsername(c *gin.Context) {
 }
 
 func UserLogin(c *gin.Context) {
+	// Decode the body of request
 	var user UserLoginRequest
-	if c.BindJSON(&user) == nil {
-		if db_user, _ := database.GetUserByUsername(user.Username); db_user.ID != 0 {
-			if db_user.ComparePasswords(user.Password) == nil {
-				db_user_id := strconv.Itoa(int(db_user.ID))
-				access_token, _ := tools.GenerateToken(db_user_id, time.Hour*1, os.Getenv("JWT_SECRET"))
-				refresh_token, _ := tools.GenerateToken(db_user_id, time.Hour*24*7, os.Getenv("REFRESH_TOKEN_SECRET"))
-				c.SetCookie("access_token", access_token, 3600, "/", "", false, true)
-				c.SetCookie("refresh_token", refresh_token, 3600*24*7, "/refresh_token", "", false, true)
-				c.JSON(http.StatusOK, gin.H{"status": "login success"})
-			} else {
-				c.JSON(http.StatusUnauthorized, gin.H{"status": "wrong password"})
-			}
-		} else {
-			c.JSON(http.StatusUnauthorized, gin.H{"status": "user not found"})
-		}
+	if c.BindJSON(&user) != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "invalid request"})
+		return
 	}
-}
 
-// This route should include refresh token and will return new access token
-func RefreshToken(c *gin.Context) {
-	refresh_token, err := c.Cookie("refresh_token")
-	if err != nil || refresh_token == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{"status": "you are logged out"})
-		return
-	}
-	jwt, err := tools.ExtractTokenData(refresh_token, os.Getenv("REFRESH_TOKEN_SECRET"))
+	// Check if user exists
+	db_user, err := database.GetUserByUsername(user.Username)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"status": "you are logged out"})
+		if db_user.ID == 0 {
+			c.JSON(http.StatusUnauthorized, gin.H{"status": "user not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "error getting user"})
 		return
 	}
-	access_token, _ := tools.GenerateToken(jwt.Subject, time.Hour*1, os.Getenv("JWT_SECRET"))
-	refresh_token, _ = tools.GenerateToken(jwt.Subject, time.Hour*24*7, os.Getenv("REFRESH_TOKEN_SECRET"))
+
+	// Check if password is correct
+	if db_user.ComparePasswords(user.Password) != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"status": "wrong password"})
+		return
+	}
+
+	// Store username in the session
+	sn := session.Create(db_user.ID)
+
+	// Generate access token and refresh token
+	access_token, _ := tools.GenerateToken(strconv.Itoa(int(db_user.ID)), time.Hour*1, os.Getenv("JWT_SECRET"))
+	refresh_token, _ := tools.GenerateToken(sn.SessionID, time.Hour*24*7, os.Getenv("REFRESH_TOKEN_SECRET"))
 	c.SetCookie("access_token", access_token, 3600, "/", "", false, true)
-	c.SetCookie("refresh_token", refresh_token, 3600*24*7, "/refresh_token", "", false, true)
-	c.JSON(http.StatusOK, gin.H{"status": "token refreshed"})
+	c.SetCookie("refresh_token", refresh_token, 3600*24*7, "/", "", false, true)
+	c.JSON(http.StatusOK, gin.H{"status": "login success", "session": sn})
 }
 
 func UserLogout(c *gin.Context) {
-	c.SetCookie("refresh_token", "", -1, "/refresh_token", "", false, true)
+	c.SetCookie("refresh_token", "", -1, "/", "", false, true)
 	c.SetCookie("access_token", "", -1, "/", "", false, true)
 	c.JSON(http.StatusOK, gin.H{"status": "logout success"})
 }

@@ -1,10 +1,7 @@
 package tools
 
 import (
-	"crypto/sha256"
 	"fmt"
-	"math/rand"
-	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -19,12 +16,6 @@ func GenerateToken(subject string, lifespan time.Duration, secret string) (strin
 	return token.SignedString([]byte(secret))
 }
 
-// Genarate a random unique hashed string from given string
-func RandomUniqueHash(data string) string {
-	data = strconv.Itoa(int(time.Now().Unix())) + data + strconv.Itoa(rand.Intn(999))
-	return fmt.Sprintf("%x", sha256.Sum256([]byte(data)))
-}
-
 func ExtractTokenData(token string, secret string) (*jwt.StandardClaims, error) {
 	jwt_token, err := jwt.ParseWithClaims(
 		token, &jwt.StandardClaims{},
@@ -32,11 +23,14 @@ func ExtractTokenData(token string, secret string) (*jwt.StandardClaims, error) 
 			return []byte(secret), nil
 		},
 	)
+	payload := jwt_token.Claims.(*jwt.StandardClaims)
 	if err != nil {
-		return nil, err
+		// This error usually means that the token is expired
+		return payload, err
 	} else if !jwt_token.Valid {
+		// This error usually means that the token is invalid because it was not signed with the correct secret
+		// We have access to payloads here, but we don't return it.
 		return nil, fmt.Errorf("invalid token")
 	}
-	payload := jwt_token.Claims.(*jwt.StandardClaims)
 	return payload, nil
 }
