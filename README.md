@@ -1,2 +1,1 @@
-# Specifically made for **adjoe**
-### Blogo, blog using Go (gin) and Svelte
+# Blogo, blog using Go (gin) and Svelte
