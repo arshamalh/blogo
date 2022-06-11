@@ -1,8 +1,15 @@
 <script>
+  import GetUserId from "./lib/GetUserID.svelte";
+  import Login from "./lib/Login.svelte";
+  import Logout from "./lib/Logout.svelte";
 </script>
 
 <main>
-
+  <div class="box">
+    <GetUserId />
+    <Login />
+    <Logout />
+  </div>
 </main>
 
 <style>
@@ -17,5 +24,11 @@
     margin: 0 auto;
     display: flex;
     justify-content: center;
+  }
+
+  .box {
+    background-color: #e0e0ee;
+    width: 500px;
+    height: 550px;
   }
 </style>
