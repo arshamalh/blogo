@@ -9,18 +9,26 @@ import (
 )
 
 type PostRequest struct {
-	Title   string `form:"title" json:"title" binding:"required"`
-	Content string `form:"content" json:"content" binding:"required"`
+	Title      string   `form:"title" json:"title" binding:"required"`
+	Content    string   `form:"content" json:"content" binding:"required"`
+	Categories []string `form:"categories" json:"categories"`
 }
 
 func CreatePost(c *gin.Context) {
 	var post PostRequest
-	value, _ := c.Get("user_id")
+	user_id_str, _ := c.Get("user_id")
+	user_id, _ := strconv.ParseUint(user_id_str.(string), 10, 64)
 	if c.BindJSON(&post) == nil {
+		catgs := []models.Category{}
+		for _, catg := range post.Categories {
+			catgs = append(catgs, models.Category{Name: catg})
+		}
+
 		new_post := models.Post{
-			Title:    post.Title,
-			Content:  post.Content,
-			AuthorID: uint(value.(int)),
+			Title:      post.Title,
+			Content:    post.Content,
+			AuthorID:   uint(user_id),
+			Categories: catgs,
 		}
 		post_id, _ := database.CreatePost(&new_post)
 		c.JSON(200, gin.H{

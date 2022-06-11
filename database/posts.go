@@ -9,12 +9,12 @@ func CreatePost(post *models.Post) (uint, error) {
 
 func GetPost(id uint) (models.Post, error) {
 	var post models.Post
-	err := DB.Preload("Author").First(&post, id).Error
+	err := DB.Preload("Author").Preload("Categories").First(&post, id).Error
 	return post, err
 }
 
 func GetPosts() ([]models.Post, error) {
 	var posts []models.Post
-	err := DB.Preload("Author").Find(&posts).Error
+	err := DB.Preload("Author").Preload("Categories").Find(&posts).Error
 	return posts, err
 }

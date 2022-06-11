@@ -25,4 +25,11 @@ func IntializeRoutes(router *gin.Engine) {
 		post_routes.GET("/:id", controllers.GetPost)
 		post_routes.GET("/", controllers.GetPosts)
 	}
+
+	category_routes := router.Group("api/v1/categories")
+	{
+		category_routes.POST("/", middlewares.RequireLogin, controllers.CreateCategory)
+		category_routes.GET("/:id", controllers.GetCategory)
+		category_routes.GET("/", controllers.GetCategories)
+	}
 }
