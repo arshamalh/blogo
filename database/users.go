@@ -2,6 +2,7 @@ package database
 
 import (
 	"github.com/arshamalh/blogo/models"
+	"github.com/arshamalh/blogo/models/permissions"
 )
 
 func CheckUserExists(username string) bool {
@@ -18,4 +19,14 @@ func GetUserByUsername(username string) (*models.User, error) {
 	user := &models.User{}
 	err := DB.First(&user, "username = ?", username).Error
 	return user, err
+}
+
+func GetUserPermissions(user_id uint) []permissions.Permission {
+	var user models.User
+	err := DB.Preload("Role").First(&user, user_id).Error
+	if err != nil {
+		return nil
+	}
+	return user.Role.Permissions
+
 }
