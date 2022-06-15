@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"net/http"
 	"strconv"
 
 	"github.com/arshamalh/blogo/database"
@@ -11,7 +12,7 @@ import (
 func CreateRole(ctx *gin.Context) {
 	var role models.Role
 	if err := ctx.BindJSON(&role); err != nil {
-		ctx.JSON(500, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": "invalid request"})
 		return
 	}
 	if err := database.CreateRole(&role); err != nil {
@@ -24,7 +25,7 @@ func CreateRole(ctx *gin.Context) {
 func UpdateRole(ctx *gin.Context) {
 	var role models.Role
 	if err := ctx.BindJSON(&role); err != nil {
-		ctx.JSON(500, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": "invalid request"})
 		return
 	}
 	if err := database.UpdateRole(&role); err != nil {

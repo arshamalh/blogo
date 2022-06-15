@@ -10,13 +10,13 @@ import (
 
 func CreateCategory(c *gin.Context) {
 	var category models.Category
-	if c.BindJSON(&category) == nil {
-		if !database.CheckCategoryExists(category.Name) {
-			database.CreateCategory(&category)
-			c.JSON(http.StatusOK, gin.H{"status": "category created"})
-		} else {
-			c.JSON(http.StatusConflict, gin.H{"status": "category already exists"})
-		}
+	if c.BindJSON(&category) != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "invalid request"})
+	} else if database.CheckCategoryExists(category.Name) {
+		c.JSON(http.StatusConflict, gin.H{"status": "category already exists"})
+	} else {
+		database.CreateCategory(&category)
+		c.JSON(http.StatusOK, gin.H{"status": "category created"})
 	}
 }
 
