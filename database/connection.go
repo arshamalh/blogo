@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/arshamalh/blogo/models"
+	"github.com/arshamalh/blogo/models/permissions"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -25,5 +26,13 @@ func Connect(dsn string) {
 	if err != nil {
 		panic("Failed to migrate the database")
 	}
+	AddBasicRoles()
 	fmt.Println("Database Migrated")
+}
+
+func AddBasicRoles() {
+	//
+	CreateRole(&models.Role{Name: "superadmin", Permissions: permissions.Compress([]permissions.Permission{permissions.FullAccess})})
+	CreateRole(&models.Role{Name: "moderator", Permissions: permissions.Compress([]permissions.Permission{permissions.FullContents})})
+	CreateRole(&models.Role{Name: "author", Permissions: permissions.Compress([]permissions.Permission{permissions.CreatePost, permissions.FullContents})})
 }

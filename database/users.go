@@ -27,6 +27,6 @@ func GetUserPermissions(user_id uint) []permissions.Permission {
 	if err != nil {
 		return nil
 	}
-	return user.Role.Permissions
+	return permissions.Decompress(user.Role.Permissions)
 
 }
