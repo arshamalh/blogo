@@ -22,7 +22,7 @@ func IntializeRoutes(router *gin.Engine) {
 
 	post_routes := router.Group("api/v1/posts")
 	{
-		post_routes.POST("/", middlewares.RequireLogin, controllers.CreatePost)
+		post_routes.POST("/", middlewares.RequireLogin, middlewares.CheckPermissions(permissions.CreatePost), controllers.CreatePost)
 		post_routes.GET("/:id", controllers.GetPost)
 		post_routes.GET("/", controllers.GetPosts)
 	}
