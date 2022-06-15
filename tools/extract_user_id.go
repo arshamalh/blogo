@@ -20,3 +20,11 @@ func ExtractUserID(ctx *gin.Context) (uint, error) {
 	}
 	return uint(user_id), nil
 }
+
+func ExtractPermissable(ctx *gin.Context) bool {
+	permissable, exists := ctx.Get("permissable")
+	if !exists {
+		return false
+	}
+	return permissable.(bool)
+}

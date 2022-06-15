@@ -7,25 +7,23 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// CheckPermissions is a middleware that checks if the user has the required permissions.
 func CheckPermissions(permission permissions.Permission) func(ctx *gin.Context) {
 	return func(ctx *gin.Context) {
-		user_id, err := tools.ExtractUserID(ctx)
-		if err != nil {
-			ctx.AbortWithStatusJSON(401, gin.H{
-				"message": "Unauthorized",
-			})
-			return
-		}
-		for _, perm := range database.GetUserPermissions(user_id) {
-			if perm == permission ||
-				perm == permissions.FullAccess ||
-				(perm == permissions.FullContents && permission > permissions.FullContents) {
-				ctx.Next()
-				return
-			}
-		}
-		ctx.AbortWithStatusJSON(401, gin.H{
-			"message": "you don't have enough permissions",
-		})
+		user_id, _ := tools.ExtractUserID(ctx)
+		ctx.Set("permissable", HavePermissions(user_id, permission))
+		ctx.Next()
 	}
+}
+
+// HavePermissions checks if the user has the required permissions, this can be used in other parts of the application.
+func HavePermissions(user_id uint, permission permissions.Permission) bool {
+	for _, perm := range database.GetUserPermissions(user_id) {
+		if perm == permission ||
+			perm == permissions.FullAccess ||
+			(perm == permissions.FullContents && permission > permissions.FullContents) {
+			return true
+		}
+	}
+	return false
 }
