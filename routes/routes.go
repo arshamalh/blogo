@@ -25,7 +25,7 @@ func IntializeRoutes(router *gin.Engine) {
 		post_routes.POST("/", middlewares.RequireLogin, middlewares.CheckPermissions(permissions.CreatePost), controllers.CreatePost)
 		post_routes.GET("/:id", controllers.GetPost)
 		post_routes.GET("/", controllers.GetPosts)
-		// post_routes.PATCH("/:id", middlewares.RequireLogin, controllers.UpdatePost)
+		post_routes.PATCH("/:id", middlewares.RequireLogin, middlewares.CheckPermissions(permissions.EditPost), controllers.UpdatePost)
 		post_routes.DELETE("/:id", middlewares.RequireLogin, middlewares.CheckPermissions(permissions.DeletePost), controllers.DeletePost)
 	}
 

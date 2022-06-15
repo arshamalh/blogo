@@ -65,6 +65,34 @@ func DeletePost(ctx *gin.Context) {
 	ctx.JSON(200, gin.H{"message": "Post deleted"})
 }
 
+func UpdatePost(ctx *gin.Context) {
+	var post PostRequest
+	if err := ctx.BindJSON(&post); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": "invalid request"})
+		return
+	}
+
+	// Make new updated post
+	catgs := []models.Category{}
+	for _, catg := range post.Categories {
+		catgs = append(catgs, models.Category{Name: catg})
+	}
+	new_post := models.Post{
+		Title:      post.Title,
+		Content:    post.Content,
+		Categories: catgs,
+	}
+	post_id, _ := strconv.ParseUint(ctx.Param("id"), 10, 64)
+	new_post.ID = uint(post_id)
+
+	// Update post
+	if err := database.UpdatePost(&new_post); err != nil {
+		ctx.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(200, gin.H{"post": new_post})
+}
+
 func GetPost(ctx *gin.Context) {
 	post_id, _ := strconv.ParseUint(ctx.Param("id"), 10, 64)
 	post, _ := database.GetPost(uint(post_id))

@@ -11,6 +11,10 @@ func DeletePost(id uint) error {
 	return DB.Delete(&models.Post{}, "id = ?", id).Error
 }
 
+func UpdatePost(post *models.Post) error {
+	return DB.Updates(&post).Error
+}
+
 func GetPost(id uint) (models.Post, error) {
 	var post models.Post
 	err := DB.Preload("Author").Preload("Category").First(&post, id).Error
