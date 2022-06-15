@@ -11,7 +11,11 @@ const (
 	// Full access means this user can do anything with other users, their posts, and categories.
 	FullAccess Permission = 0
 
-	// Permission 1 to 20 are reserved for future use.
+	CreateRole Permission = 1
+	UpdateRole Permission = 2
+	DeleteRole Permission = 3
+
+	// Permission 4 to 20 are reserved for future use.
 
 	// Full content access means this user can make or delete any post or category or comment, but can't do anything with other users.
 	FullContents Permission = 20

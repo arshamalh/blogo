@@ -8,6 +8,6 @@ import (
 // Any user has a role, and any role has some permissions and accessories in the future (TODO) (logo, cool name and more)
 type Role struct {
 	gorm.Model
-	Name        string `json:"name"`
-	Permissions []permissions.Permission
+	Name        string                   `form:"name" json:"name" binding:"required"`
+	Permissions []permissions.Permission `form:"premissions" json:"premissions"`
 }
