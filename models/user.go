@@ -13,6 +13,8 @@ type User struct {
 	FisrtName string `json:"first_name"`
 	LastName  string `json:"last_name"`
 	Posts     []Post `gorm:"foreignKey:AuthorID"`
+	Role      Role   `gorm:"foreignKey:RoleID"`
+	RoleID    uint   `json:"role_id"`
 }
 
 func (user *User) SetPassword(password string) {
