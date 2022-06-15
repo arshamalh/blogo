@@ -7,6 +7,10 @@ func CreatePost(post *models.Post) (uint, error) {
 	return post.ID, err
 }
 
+func DeletePost(id uint) error {
+	return DB.Delete(&models.Post{}, "id = ?", id).Error
+}
+
 func GetPost(id uint) (models.Post, error) {
 	var post models.Post
 	err := DB.Preload("Author").Preload("Category").First(&post, id).Error

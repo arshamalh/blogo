@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"net/http"
 	"strconv"
 
 	"github.com/arshamalh/blogo/database"
@@ -17,11 +18,7 @@ type PostRequest struct {
 
 func CreatePost(ctx *gin.Context) {
 	var post PostRequest
-	user_id, err := tools.ExtractUserID(ctx)
-	if err != nil {
-		ctx.JSON(500, gin.H{"error": err.Error()})
-		return
-	}
+	user_id, _ := tools.ExtractUserID(ctx)
 	if err := ctx.BindJSON(&post); err != nil {
 		ctx.JSON(500, gin.H{"error": err.Error()})
 		return
@@ -45,17 +42,40 @@ func CreatePost(ctx *gin.Context) {
 	})
 }
 
-func GetPost(c *gin.Context) {
-	post_id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+func DeletePost(ctx *gin.Context) {
+	user_id, _ := tools.ExtractUserID(ctx)
+	post_id, _ := strconv.ParseUint(ctx.Param("id"), 10, 64)
+
+	// If user doesn't have the permission to delete posts, check if it's its own post.
+	if !tools.ExtractPermissable(ctx) {
+		post, _ := database.GetPost(uint(post_id))
+		if post.AuthorID != user_id {
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"message": "you don't have enough permissions",
+			})
+			return
+		}
+	}
+
+	// Delete post
+	if err := database.DeletePost(uint(post_id)); err != nil {
+		ctx.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(200, gin.H{"message": "Post deleted"})
+}
+
+func GetPost(ctx *gin.Context) {
+	post_id, _ := strconv.ParseUint(ctx.Param("id"), 10, 64)
 	post, _ := database.GetPost(uint(post_id))
-	c.JSON(200, gin.H{
+	ctx.JSON(200, gin.H{
 		"post": post,
 	})
 }
 
-func GetPosts(c *gin.Context) {
+func GetPosts(ctx *gin.Context) {
 	posts, _ := database.GetPosts()
-	c.JSON(200, gin.H{
+	ctx.JSON(200, gin.H{
 		"posts": posts,
 	})
 }

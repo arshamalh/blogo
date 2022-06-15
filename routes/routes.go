@@ -25,6 +25,8 @@ func IntializeRoutes(router *gin.Engine) {
 		post_routes.POST("/", middlewares.RequireLogin, middlewares.CheckPermissions(permissions.CreatePost), controllers.CreatePost)
 		post_routes.GET("/:id", controllers.GetPost)
 		post_routes.GET("/", controllers.GetPosts)
+		// post_routes.PATCH("/:id", middlewares.RequireLogin, controllers.UpdatePost)
+		post_routes.DELETE("/:id", middlewares.RequireLogin, middlewares.CheckPermissions(permissions.DeletePost), controllers.DeletePost)
 	}
 
 	category_routes := router.Group("api/v1/categories")
@@ -32,6 +34,8 @@ func IntializeRoutes(router *gin.Engine) {
 		category_routes.POST("/", middlewares.RequireLogin, middlewares.CheckPermissions(permissions.CreateCategory), controllers.CreateCategory)
 		category_routes.GET("/:id", controllers.GetCategory)
 		category_routes.GET("/", controllers.GetCategories)
+		// category_routes.PATCH("/:id", middlewares.RequireLogin, middlewares.CheckPermissions(permissions.UpdateCategory), controllers.UpdateCategory)
+		// category_routes.DELETE("/:id", middlewares.RequireLogin, middlewares.CheckPermissions(permissions.DeleteCategory), controllers.DeleteCategory)
 	}
 
 	role_routes := router.Group("api/v1/roles")
