@@ -16,8 +16,13 @@ func UpdatePost(post *models.Post) error {
 }
 
 func GetPost(id uint) (models.Post, error) {
+	// FIXME: This is not the best way to do this
 	var post models.Post
-	err := DB.Preload("Author").Preload("Category").First(&post, id).Error
+	err := DB.
+		Preload("Author").
+		Preload("Category").
+		Preload("Comment").
+		First(&post, id).Error
 	return post, err
 }
 
