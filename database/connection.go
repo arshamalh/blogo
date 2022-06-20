@@ -30,8 +30,8 @@ func Connect(dsn string) {
 	fmt.Println("Database Migrated")
 }
 
+// Add some basic roles manually
 func AddBasicRoles() {
-	//
 	CreateRole(&models.Role{Name: "superadmin", Permissions: permissions.Compress([]permissions.Permission{permissions.FullAccess})})
 	CreateRole(&models.Role{Name: "moderator", Permissions: permissions.Compress([]permissions.Permission{permissions.FullContents})})
 	CreateRole(&models.Role{Name: "author", Permissions: permissions.Compress([]permissions.Permission{permissions.CreatePost, permissions.FullContents})})
