@@ -8,5 +8,6 @@ type Post struct {
 	Content    string     `json:"content"`
 	AuthorID   uint       `json:"author_id"`
 	Author     User       `json:"author"`
+	Comments   []Comment  `json:"comments"`
 	Categories []Category `json:"categories" gorm:"many2many:post_categories;"`
 }
