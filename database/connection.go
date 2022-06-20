@@ -22,7 +22,7 @@ func Connect(dsn string) {
 	fmt.Println("Database connection successfully opened")
 
 	// Auto migration
-	err = DB.AutoMigrate(models.User{}, models.Post{}, models.Category{}, models.Role{})
+	err = DB.AutoMigrate(models.User{}, models.Post{}, models.Category{}, models.Role{}, models.Comment{})
 	if err != nil {
 		panic("Failed to migrate the database")
 	}
