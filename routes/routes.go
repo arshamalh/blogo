@@ -29,6 +29,11 @@ func IntializeRoutes(router *gin.Engine) {
 		post_routes.DELETE("/:id", middlewares.RequireLogin, middlewares.CheckPermissions(permissions.DeletePost), controllers.DeletePost)
 	}
 
+	comment_routes := router.Group("api/v1/comments")
+	{
+		comment_routes.POST("/", middlewares.RequireLogin, controllers.CreateComment)
+	}
+
 	category_routes := router.Group("api/v1/categories")
 	{
 		category_routes.POST("/", middlewares.RequireLogin, middlewares.CheckPermissions(permissions.CreateCategory), controllers.CreateCategory)
@@ -40,7 +45,6 @@ func IntializeRoutes(router *gin.Engine) {
 
 	role_routes := router.Group("api/v1/roles")
 	{
-		// Not implemented routes
 		role_routes.POST("/", middlewares.RequireLogin, middlewares.CheckPermissions(permissions.CreateRole), controllers.CreateRole)
 		role_routes.PATCH("/", middlewares.RequireLogin, middlewares.CheckPermissions(permissions.UpdateRole), controllers.UpdateRole)
 		role_routes.GET("/:id", controllers.GetRole)
