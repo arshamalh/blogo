@@ -13,5 +13,5 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -o main .
 
 FROM alpine:3.15 AS production
 COPY --from=builder /app/main .
-COPY --from=frontend /ui/public /ui
+COPY --from=frontend /ui/dist /ui
 CMD ["./main"]
