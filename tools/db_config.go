@@ -14,7 +14,7 @@ type DBConfig struct {
 
 func (dbc DBConfig) String() string {
 	if dbc.Host == "" {
-		dbc.Host = "loca"
+		dbc.Host = "localhost"
 	}
 
 	if dbc.Port == 0 {

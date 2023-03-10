@@ -10,7 +10,6 @@ import (
 	"github.com/arshamalh/blogo/models"
 	"github.com/arshamalh/blogo/session"
 	"github.com/arshamalh/blogo/tools"
-	"github.com/gin-gonic/gin"
 	"github.com/labstack/echo/v4"
 )
 
@@ -40,7 +39,7 @@ type UserLoginRequest struct {
 func (uc *userController) UserRegister(ctx echo.Context) error {
 	var user UserRegisterRequest
 	if ctx.Bind(&user) != nil {
-		return ctx.JSON(http.StatusBadRequest, gin.H{"status": "invalid request"})
+		return ctx.JSON(http.StatusBadRequest, echo.Map{"message": "invalid request"})
 	}
 	if !uc.db.CheckUserExists(user.Username) {
 		new_user := models.User{
@@ -48,23 +47,27 @@ func (uc *userController) UserRegister(ctx echo.Context) error {
 			Email:     user.Email,
 			FisrtName: user.FisrtName,
 			LastName:  user.LastName,
+			RoleID:    3,
 		}
 		new_user.SetPassword(user.Password)
-		uc.db.CreateUser(&new_user)
-		return ctx.JSON(http.StatusOK, gin.H{"status": "user created"})
+		uid, err := uc.db.CreateUser(&new_user)
+		if err != nil {
+			return ctx.JSON(http.StatusConflict, err)
+		}
+		return ctx.JSON(http.StatusOK, echo.Map{"message": "user created", "uid": uid})
 	} else {
-		return ctx.JSON(http.StatusConflict, gin.H{"status": "user already exists"})
+		return ctx.JSON(http.StatusConflict, echo.Map{"message": "user already exists"})
 	}
 }
 
 func (uc *userController) CheckUsername(ctx echo.Context) error {
 	var username string
 	if ctx.Bind(&username) != nil {
-		return ctx.JSON(http.StatusBadRequest, gin.H{"status": "invalid request"})
+		return ctx.JSON(http.StatusBadRequest, echo.Map{"message": "invalid request"})
 	} else if uc.db.CheckUserExists(username) {
-		return ctx.JSON(http.StatusConflict, gin.H{"status": "username is already taken"})
+		return ctx.JSON(http.StatusConflict, echo.Map{"message": "username is already taken"})
 	} else {
-		return ctx.JSON(http.StatusOK, gin.H{"status": "username available"})
+		return ctx.JSON(http.StatusOK, echo.Map{"message": "username available"})
 	}
 }
 
@@ -72,7 +75,7 @@ func (uc *userController) UserLogin(ctx echo.Context) error {
 	// Decode the body of request
 	var user UserLoginRequest
 	if ctx.Bind(&user) != nil {
-		return ctx.JSON(http.StatusBadRequest, gin.H{"status": "invalid request"})
+		return ctx.JSON(http.StatusBadRequest, echo.Map{"message": "invalid request"})
 
 	}
 
@@ -80,16 +83,16 @@ func (uc *userController) UserLogin(ctx echo.Context) error {
 	db_user, err := uc.db.GetUserByUsername(user.Username)
 	if err != nil {
 		if db_user.ID == 0 {
-			return ctx.JSON(http.StatusUnauthorized, gin.H{"status": "user not found"})
+			return ctx.JSON(http.StatusUnauthorized, echo.Map{"message": "user not found"})
 
 		}
-		return ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error getting user"})
+		return ctx.JSON(http.StatusInternalServerError, echo.Map{"message": "error getting user"})
 
 	}
 
 	// Check if password is correct
 	if db_user.ComparePasswords(user.Password) != nil {
-		return ctx.JSON(http.StatusUnauthorized, gin.H{"status": "wrong password"})
+		return ctx.JSON(http.StatusUnauthorized, echo.Map{"message": "wrong password"})
 	}
 
 	// Store username in the session
@@ -104,7 +107,7 @@ func (uc *userController) UserLogin(ctx echo.Context) error {
 		Expires:  time.Now().Add(time.Hour * 24 * 7),
 		HttpOnly: true,
 	})
-	return ctx.JSON(http.StatusOK, gin.H{"status": "login success", "session": sn})
+	return ctx.JSON(http.StatusOK, echo.Map{"message": "login success", "session": sn})
 }
 
 func (uc *userController) UserLogout(ctx echo.Context) error {
@@ -113,10 +116,10 @@ func (uc *userController) UserLogout(ctx echo.Context) error {
 		Path:    "/",
 		Expires: time.Now(),
 	})
-	return ctx.JSON(http.StatusOK, gin.H{"status": "logout success"})
+	return ctx.JSON(http.StatusOK, echo.Map{"message": "logout success"})
 }
 
 func (uc *userController) UserID(ctx echo.Context) error {
 	value := ctx.Get("user_id")
-	return ctx.JSON(200, gin.H{"user_id": value})
+	return ctx.JSON(200, echo.Map{"user_id": value})
 }

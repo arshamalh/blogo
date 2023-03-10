@@ -5,7 +5,6 @@ import (
 
 	"github.com/arshamalh/blogo/databases"
 	"github.com/arshamalh/blogo/models"
-	"github.com/gin-gonic/gin"
 	"github.com/labstack/echo/v4"
 )
 
@@ -22,12 +21,12 @@ func NewCategoryController(db databases.Database) *categoryController {
 func (cc *categoryController) CreateCategory(c echo.Context) error {
 	var category models.Category
 	if c.Bind(&category) != nil {
-		return c.JSON(http.StatusBadRequest, gin.H{"status": "invalid request"})
+		return c.JSON(http.StatusBadRequest, echo.Map{"status": "invalid request"})
 	} else if cc.db.CheckCategoryExists(category.Name) {
-		return c.JSON(http.StatusConflict, gin.H{"status": "category already exists"})
+		return c.JSON(http.StatusConflict, echo.Map{"status": "category already exists"})
 	} else {
 		cc.db.CreateCategory(&category)
-		return c.JSON(http.StatusOK, gin.H{"status": "category created"})
+		return c.JSON(http.StatusOK, echo.Map{"status": "category created"})
 	}
 }
 
@@ -36,7 +35,7 @@ func (cc *categoryController) GetCategory(c echo.Context) error {
 	if category.ID != 0 {
 		return c.JSON(http.StatusOK, category)
 	} else {
-		return c.JSON(http.StatusNotFound, gin.H{"status": "category not found"})
+		return c.JSON(http.StatusNotFound, echo.Map{"status": "category not found"})
 	}
 }
 

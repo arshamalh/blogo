@@ -7,7 +7,6 @@ import (
 	"github.com/arshamalh/blogo/databases"
 	"github.com/arshamalh/blogo/models"
 	"github.com/arshamalh/blogo/tools"
-	"github.com/gin-gonic/gin"
 	"github.com/labstack/echo/v4"
 )
 
@@ -31,7 +30,7 @@ func (pc *postController) CreatePost(ctx echo.Context) error {
 	var post PostRequest
 	user_id, _ := tools.ExtractUserID(ctx)
 	if err := ctx.Bind(&post); err != nil {
-		return ctx.JSON(500, gin.H{"error": err.Error()})
+		return ctx.JSON(500, echo.Map{"error": err.Error()})
 	}
 
 	catgs := []models.Category{}
@@ -46,7 +45,7 @@ func (pc *postController) CreatePost(ctx echo.Context) error {
 		Categories: catgs,
 	}
 	post_id, _ := pc.db.CreatePost(&new_post)
-	return ctx.JSON(200, gin.H{
+	return ctx.JSON(200, echo.Map{
 		"message": "Post created successfully",
 		"post_id": post_id,
 	})
@@ -60,7 +59,7 @@ func (pc *postController) DeletePost(ctx echo.Context) error {
 	if !tools.ExtractPermissable(ctx) {
 		post, _ := pc.db.GetPost(uint(post_id))
 		if post.AuthorID != user_id {
-			return ctx.JSON(http.StatusUnauthorized, gin.H{
+			return ctx.JSON(http.StatusUnauthorized, echo.Map{
 				"message": "you don't have enough permissions",
 			})
 		}
@@ -68,16 +67,16 @@ func (pc *postController) DeletePost(ctx echo.Context) error {
 
 	// Delete post
 	if err := pc.db.DeletePost(uint(post_id)); err != nil {
-		return ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return ctx.JSON(http.StatusInternalServerError, echo.Map{"error": err.Error()})
 
 	}
-	return ctx.JSON(http.StatusOK, gin.H{"message": "Post deleted"})
+	return ctx.JSON(http.StatusOK, echo.Map{"message": "Post deleted"})
 }
 
 func (pc *postController) UpdatePost(ctx echo.Context) error {
 	var post PostRequest
 	if err := ctx.Bind(&post); err != nil {
-		return ctx.JSON(http.StatusBadRequest, gin.H{"status": "invalid request"})
+		return ctx.JSON(http.StatusBadRequest, echo.Map{"status": "invalid request"})
 
 	}
 
@@ -96,22 +95,22 @@ func (pc *postController) UpdatePost(ctx echo.Context) error {
 
 	// Update post
 	if err := pc.db.UpdatePost(&new_post); err != nil {
-		return ctx.JSON(500, gin.H{"error": err.Error()})
+		return ctx.JSON(500, echo.Map{"error": err.Error()})
 	}
-	return ctx.JSON(200, gin.H{"post": new_post})
+	return ctx.JSON(200, echo.Map{"post": new_post})
 }
 
 func (pc *postController) GetPost(ctx echo.Context) error {
 	post_id, _ := strconv.ParseUint(ctx.Param("id"), 10, 64)
 	post, _ := pc.db.GetPost(uint(post_id))
-	return ctx.JSON(200, gin.H{
+	return ctx.JSON(200, echo.Map{
 		"post": post,
 	})
 }
 
 func (pc *postController) GetPosts(ctx echo.Context) error {
 	posts, _ := pc.db.GetPosts()
-	return ctx.JSON(200, gin.H{
+	return ctx.JSON(200, echo.Map{
 		"posts": posts,
 	})
 }

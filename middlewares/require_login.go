@@ -12,7 +12,7 @@ func RequireLogin(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(ctx echo.Context) error {
 		access_token, err := ctx.Cookie("access_token")
 		if err != nil {
-			return ctx.JSON(http.StatusBadRequest, err)
+			return ctx.JSON(http.StatusUnauthorized, "you should login")
 		}
 
 		if access_token.Value == "" {
@@ -26,6 +26,6 @@ func RequireLogin(next echo.HandlerFunc) echo.HandlerFunc {
 
 		// If access token is valid and not expired, extract data from it
 		ctx.Set("user_id", jwt_access.Subject)
-		return nil
+		return next(ctx)
 	}
 }

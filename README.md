@@ -2,12 +2,12 @@
 
 Simple blog made using:
 - Go
-- Gin framwork
+- Echo framework
 - Svelte frontend
 - Postgres Database
 - GORM orm
 - Docker virtualization
-- JWT access and refresh mechanism
+- JWT
 
 In the near future
 - Zap for logging

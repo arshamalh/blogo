@@ -13,7 +13,7 @@ func CheckPermissions(db databases.Database, permission permissions.Permission) 
 		return func(ctx echo.Context) error {
 			user_id, _ := tools.ExtractUserID(ctx)
 			ctx.Set("permissable", HavePermissions(db, user_id, permission))
-			return nil
+			return next(ctx)
 		}
 	}
 }
