@@ -4,49 +4,59 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/arshamalh/blogo/database"
+	"github.com/arshamalh/blogo/databases"
 	"github.com/arshamalh/blogo/models"
 	"github.com/gin-gonic/gin"
 )
 
-func CreateRole(ctx *gin.Context) {
+type roleController struct {
+	db databases.Database
+}
+
+func NewRoleController(db databases.Database) *roleController {
+	return &roleController{
+		db: db,
+	}
+}
+
+func (rc *roleController) CreateRole(ctx *gin.Context) {
 	var role models.Role
 	if err := ctx.BindJSON(&role); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"status": "invalid request"})
 		return
 	}
-	if err := database.CreateRole(&role); err != nil {
+	if err := rc.db.CreateRole(&role); err != nil {
 		ctx.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
 	ctx.JSON(200, gin.H{"role": role})
 }
 
-func UpdateRole(ctx *gin.Context) {
+func (rc *roleController) UpdateRole(ctx *gin.Context) {
 	var role models.Role
 	if err := ctx.BindJSON(&role); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"status": "invalid request"})
 		return
 	}
-	if err := database.UpdateRole(&role); err != nil {
+	if err := rc.db.UpdateRole(&role); err != nil {
 		ctx.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
 	ctx.JSON(200, gin.H{"role": role})
 }
 
-func DeleteRole(ctx *gin.Context) {
+func (rc *roleController) DeleteRole(ctx *gin.Context) {
 	id, _ := strconv.ParseUint(ctx.Param("id"), 10, 64)
-	if err := database.DeleteRole(uint(id)); err != nil {
+	if err := rc.db.DeleteRole(uint(id)); err != nil {
 		ctx.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
 	ctx.JSON(200, gin.H{"message": "Role deleted"})
 }
 
-func GetRole(ctx *gin.Context) {
+func (rc *roleController) GetRole(ctx *gin.Context) {
 	id, _ := strconv.ParseUint(ctx.Param("id"), 10, 64)
-	role, err := database.GetRole(uint(id))
+	role, err := rc.db.GetRole(uint(id))
 	if err != nil {
 		ctx.JSON(500, gin.H{"error": err.Error()})
 		return
@@ -54,8 +64,8 @@ func GetRole(ctx *gin.Context) {
 	ctx.JSON(200, gin.H{"role": role})
 }
 
-func GetRoles(ctx *gin.Context) {
-	roles, err := database.GetRoles()
+func (rc *roleController) GetRoles(ctx *gin.Context) {
+	roles, err := rc.db.GetRoles()
 	if err != nil {
 		ctx.JSON(500, gin.H{"error": err.Error()})
 		return

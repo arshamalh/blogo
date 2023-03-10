@@ -1,9 +1,10 @@
 package main
 
 import (
+	"net/http"
 	"os"
 
-	"github.com/arshamalh/blogo/database"
+	database "github.com/arshamalh/blogo/databases/gorm"
 	"github.com/arshamalh/blogo/routes"
 	"github.com/arshamalh/blogo/tools"
 	"github.com/gin-gonic/gin"
@@ -11,18 +12,22 @@ import (
 )
 
 func main() {
-	// Load enviroment variables
+	// Load environment variables
 	godotenv.Load()
 
 	// Database
-	database.Connect(tools.DBConfig{
+	dsn := tools.DBConfig{
 		User:     os.Getenv("PG_USER"),
 		Password: os.Getenv("PG_PASS"),
 		DBName:   os.Getenv("DB_NAME"),
-	}.String())
+		Host:     os.Getenv("HOST"),
+	}
+	db := database.Connect(dsn.String())
 
 	// Router
 	router := gin.Default()
-	routes.IntializeRoutes(router)
+	routes.InitializeRoutes(router, db)
+	router.StaticFS("/ui", http.Dir("./ui"))
+
 	router.Run(":80")
 }

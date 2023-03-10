@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/arshamalh/blogo/database"
+	"github.com/arshamalh/blogo/databases"
 	"github.com/arshamalh/blogo/models"
 	"github.com/arshamalh/blogo/tools"
 	"github.com/gin-gonic/gin"
@@ -16,7 +16,17 @@ type PostRequest struct {
 	Categories []string `form:"categories" json:"categories"`
 }
 
-func CreatePost(ctx *gin.Context) {
+type postController struct {
+	db databases.Database
+}
+
+func NewPostController(db databases.Database) *postController {
+	return &postController{
+		db: db,
+	}
+}
+
+func (pc *postController) CreatePost(ctx *gin.Context) {
 	var post PostRequest
 	user_id, _ := tools.ExtractUserID(ctx)
 	if err := ctx.BindJSON(&post); err != nil {
@@ -35,20 +45,20 @@ func CreatePost(ctx *gin.Context) {
 		AuthorID:   user_id,
 		Categories: catgs,
 	}
-	post_id, _ := database.CreatePost(&new_post)
+	post_id, _ := pc.db.CreatePost(&new_post)
 	ctx.JSON(200, gin.H{
 		"message": "Post created successfully",
 		"post_id": post_id,
 	})
 }
 
-func DeletePost(ctx *gin.Context) {
+func (pc *postController) DeletePost(ctx *gin.Context) {
 	user_id, _ := tools.ExtractUserID(ctx)
 	post_id, _ := strconv.ParseUint(ctx.Param("id"), 10, 64)
 
 	// If user doesn't have the permission to delete posts, check if it's its own post.
 	if !tools.ExtractPermissable(ctx) {
-		post, _ := database.GetPost(uint(post_id))
+		post, _ := pc.db.GetPost(uint(post_id))
 		if post.AuthorID != user_id {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"message": "you don't have enough permissions",
@@ -58,14 +68,14 @@ func DeletePost(ctx *gin.Context) {
 	}
 
 	// Delete post
-	if err := database.DeletePost(uint(post_id)); err != nil {
+	if err := pc.db.DeletePost(uint(post_id)); err != nil {
 		ctx.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
 	ctx.JSON(200, gin.H{"message": "Post deleted"})
 }
 
-func UpdatePost(ctx *gin.Context) {
+func (pc *postController) UpdatePost(ctx *gin.Context) {
 	var post PostRequest
 	if err := ctx.BindJSON(&post); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"status": "invalid request"})
@@ -86,23 +96,23 @@ func UpdatePost(ctx *gin.Context) {
 	new_post.ID = uint(post_id)
 
 	// Update post
-	if err := database.UpdatePost(&new_post); err != nil {
+	if err := pc.db.UpdatePost(&new_post); err != nil {
 		ctx.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
 	ctx.JSON(200, gin.H{"post": new_post})
 }
 
-func GetPost(ctx *gin.Context) {
+func (pc *postController) GetPost(ctx *gin.Context) {
 	post_id, _ := strconv.ParseUint(ctx.Param("id"), 10, 64)
-	post, _ := database.GetPost(uint(post_id))
+	post, _ := pc.db.GetPost(uint(post_id))
 	ctx.JSON(200, gin.H{
 		"post": post,
 	})
 }
 
-func GetPosts(ctx *gin.Context) {
-	posts, _ := database.GetPosts()
+func (pc *postController) GetPosts(ctx *gin.Context) {
+	posts, _ := pc.db.GetPosts()
 	ctx.JSON(200, gin.H{
 		"posts": posts,
 	})
