@@ -4,15 +4,17 @@ import (
 	"github.com/arshamalh/blogo/databases"
 	"github.com/arshamalh/blogo/models/permissions"
 	"github.com/arshamalh/blogo/tools"
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo/v4"
 )
 
 // CheckPermissions is a middleware that checks if the user has the required permissions.
-func CheckPermissions(db databases.Database, permission permissions.Permission) func(ctx *gin.Context) {
-	return func(ctx *gin.Context) {
-		user_id, _ := tools.ExtractUserID(ctx)
-		ctx.Set("permissable", HavePermissions(db, user_id, permission))
-		ctx.Next()
+func CheckPermissions(db databases.Database, permission permissions.Permission) func(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(ctx echo.Context) error {
+			user_id, _ := tools.ExtractUserID(ctx)
+			ctx.Set("permissable", HavePermissions(db, user_id, permission))
+			return nil
+		}
 	}
 }
 

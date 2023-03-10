@@ -11,6 +11,7 @@ import (
 	"github.com/arshamalh/blogo/session"
 	"github.com/arshamalh/blogo/tools"
 	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo/v4"
 )
 
 type userController struct {
@@ -36,11 +37,10 @@ type UserLoginRequest struct {
 	Password string `form:"password" json:"password" binding:"required"`
 }
 
-func (uc *userController) UserRegister(ctx *gin.Context) {
+func (uc *userController) UserRegister(ctx echo.Context) error {
 	var user UserRegisterRequest
-	if ctx.BindJSON(&user) != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"status": "invalid request"})
-		return
+	if ctx.Bind(&user) != nil {
+		return ctx.JSON(http.StatusBadRequest, gin.H{"status": "invalid request"})
 	}
 	if !uc.db.CheckUserExists(user.Username) {
 		new_user := models.User{
@@ -51,46 +51,45 @@ func (uc *userController) UserRegister(ctx *gin.Context) {
 		}
 		new_user.SetPassword(user.Password)
 		uc.db.CreateUser(&new_user)
-		ctx.JSON(http.StatusOK, gin.H{"status": "user created"})
+		return ctx.JSON(http.StatusOK, gin.H{"status": "user created"})
 	} else {
-		ctx.JSON(http.StatusConflict, gin.H{"status": "user already exists"})
+		return ctx.JSON(http.StatusConflict, gin.H{"status": "user already exists"})
 	}
 }
 
-func (uc *userController) CheckUsername(ctx *gin.Context) {
+func (uc *userController) CheckUsername(ctx echo.Context) error {
 	var username string
-	if ctx.BindJSON(&username) != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"status": "invalid request"})
+	if ctx.Bind(&username) != nil {
+		return ctx.JSON(http.StatusBadRequest, gin.H{"status": "invalid request"})
 	} else if uc.db.CheckUserExists(username) {
-		ctx.JSON(http.StatusConflict, gin.H{"status": "username has already taken"})
+		return ctx.JSON(http.StatusConflict, gin.H{"status": "username is already taken"})
 	} else {
-		ctx.JSON(http.StatusOK, gin.H{"status": "username available"})
+		return ctx.JSON(http.StatusOK, gin.H{"status": "username available"})
 	}
 }
 
-func (uc *userController) UserLogin(ctx *gin.Context) {
+func (uc *userController) UserLogin(ctx echo.Context) error {
 	// Decode the body of request
 	var user UserLoginRequest
-	if ctx.BindJSON(&user) != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"status": "invalid request"})
-		return
+	if ctx.Bind(&user) != nil {
+		return ctx.JSON(http.StatusBadRequest, gin.H{"status": "invalid request"})
+
 	}
 
 	// Check if user exists
 	db_user, err := uc.db.GetUserByUsername(user.Username)
 	if err != nil {
 		if db_user.ID == 0 {
-			ctx.JSON(http.StatusUnauthorized, gin.H{"status": "user not found"})
-			return
+			return ctx.JSON(http.StatusUnauthorized, gin.H{"status": "user not found"})
+
 		}
-		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error getting user"})
-		return
+		return ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error getting user"})
+
 	}
 
 	// Check if password is correct
 	if db_user.ComparePasswords(user.Password) != nil {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"status": "wrong password"})
-		return
+		return ctx.JSON(http.StatusUnauthorized, gin.H{"status": "wrong password"})
 	}
 
 	// Store username in the session
@@ -98,19 +97,26 @@ func (uc *userController) UserLogin(ctx *gin.Context) {
 
 	// Generate access token and refresh token
 	access_token, _ := tools.GenerateToken(strconv.Itoa(int(db_user.ID)), time.Hour*1, os.Getenv("JWT_SECRET"))
-	refresh_token, _ := tools.GenerateToken(sn.SessionID, time.Hour*24*7, os.Getenv("REFRESH_TOKEN_SECRET"))
-	ctx.SetCookie("access_token", access_token, 3600, "/", "", false, true)
-	ctx.SetCookie("refresh_token", refresh_token, 3600*24*7, "/", "", false, true)
-	ctx.JSON(http.StatusOK, gin.H{"status": "login success", "session": sn})
+	ctx.SetCookie(&http.Cookie{
+		Name:     "access_token",
+		Path:     "/",
+		Value:    access_token,
+		Expires:  time.Now().Add(time.Hour * 24 * 7),
+		HttpOnly: true,
+	})
+	return ctx.JSON(http.StatusOK, gin.H{"status": "login success", "session": sn})
 }
 
-func (uc *userController) UserLogout(ctx *gin.Context) {
-	ctx.SetCookie("refresh_token", "", -1, "/", "", false, true)
-	ctx.SetCookie("access_token", "", -1, "/", "", false, true)
-	ctx.JSON(http.StatusOK, gin.H{"status": "logout success"})
+func (uc *userController) UserLogout(ctx echo.Context) error {
+	ctx.SetCookie(&http.Cookie{
+		Name:    "access_token",
+		Path:    "/",
+		Expires: time.Now(),
+	})
+	return ctx.JSON(http.StatusOK, gin.H{"status": "logout success"})
 }
 
-func (uc *userController) UserID(ctx *gin.Context) {
-	value, _ := ctx.Get("user_id")
-	ctx.JSON(200, gin.H{"user_id": value})
+func (uc *userController) UserID(ctx echo.Context) error {
+	value := ctx.Get("user_id")
+	return ctx.JSON(200, gin.H{"user_id": value})
 }
