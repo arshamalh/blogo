@@ -6,7 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// ExtractUserID extracts user ID from the request.
+// ExtractUserID extracts user ID from the request context.
 // returns error if there is no user ID or if the user ID is not a number.
 func ExtractUserID(ctx echo.Context) (uint, error) {
 	user_id_str := ctx.Get("user_id")

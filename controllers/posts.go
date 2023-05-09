@@ -8,6 +8,7 @@ import (
 	"github.com/arshamalh/blogo/models"
 	"github.com/arshamalh/blogo/tools"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 )
 
 type PostRequest struct {
@@ -17,12 +18,15 @@ type PostRequest struct {
 }
 
 type postController struct {
-	db databases.Database
+	basicAttributes
 }
 
-func NewPostController(db databases.Database) *postController {
+func NewPostController(db databases.Database, logger *zap.Logger) *postController {
 	return &postController{
-		db: db,
+		basicAttributes: basicAttributes{
+			db:     db,
+			logger: logger,
+		},
 	}
 }
 
@@ -44,8 +48,12 @@ func (pc *postController) CreatePost(ctx echo.Context) error {
 		AuthorID:   user_id,
 		Categories: catgs,
 	}
-	post_id, _ := pc.db.CreatePost(&new_post)
-	return ctx.JSON(200, echo.Map{
+	post_id, err := pc.db.CreatePost(&new_post)
+	if err != nil {
+		pc.logger.Error(err.Error())
+		return ctx.JSON(http.StatusConflict, echo.Map{"message": "cannot make the post"})
+	}
+	return ctx.JSON(http.StatusCreated, echo.Map{
 		"message": "Post created successfully",
 		"post_id": post_id,
 	})

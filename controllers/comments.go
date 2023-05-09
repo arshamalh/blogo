@@ -7,21 +7,29 @@ import (
 	"github.com/arshamalh/blogo/models"
 	"github.com/arshamalh/blogo/tools"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 )
 
 type commentController struct {
-	db databases.Database
+	basicAttributes
 }
 
-func NewCommentController(db databases.Database) *commentController {
+func NewCommentController(db databases.Database, logger *zap.Logger) *commentController {
 	return &commentController{
-		db: db,
+		basicAttributes: basicAttributes{
+			db:     db,
+			logger: logger,
+		},
 	}
 }
 
 func (cc *commentController) CreateComment(ctx echo.Context) error {
 	var comment models.Comment
-	user_id, _ := tools.ExtractUserID(ctx)
+	user_id, err := tools.ExtractUserID(ctx)
+	if err != nil {
+		cc.logger.Error(err.Error())
+		return ctx.JSON(http.StatusUnauthorized, echo.Map{"error": "there is problem with your user"})
+	}
 	if err := ctx.Bind(&comment); err != nil {
 		return ctx.JSON(http.StatusBadRequest, echo.Map{"error": "unable to parse comment"})
 	}
@@ -30,5 +38,5 @@ func (cc *commentController) CreateComment(ctx echo.Context) error {
 		return ctx.JSON(http.StatusInternalServerError, echo.Map{"error": "unable to add comment"})
 	}
 
-	return ctx.JSON(http.StatusOK, echo.Map{"comment": comment})
+	return ctx.JSON(http.StatusCreated, echo.Map{"comment": comment})
 }

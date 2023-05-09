@@ -11,15 +11,19 @@ import (
 	"github.com/arshamalh/blogo/session"
 	"github.com/arshamalh/blogo/tools"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 )
 
 type userController struct {
-	db databases.Database
+	basicAttributes
 }
 
-func NewUserController(db databases.Database) *userController {
+func NewUserController(db databases.Database, logger *zap.Logger) *userController {
 	return &userController{
-		db: db,
+		basicAttributes: basicAttributes{
+			db:     db,
+			logger: logger,
+		},
 	}
 }
 
@@ -41,23 +45,22 @@ func (uc *userController) UserRegister(ctx echo.Context) error {
 	if ctx.Bind(&user) != nil {
 		return ctx.JSON(http.StatusBadRequest, echo.Map{"message": "invalid request"})
 	}
-	if !uc.db.CheckUserExists(user.Username) {
-		new_user := models.User{
-			Username:  user.Username,
-			Email:     user.Email,
-			FisrtName: user.FisrtName,
-			LastName:  user.LastName,
-			RoleID:    3,
-		}
-		new_user.SetPassword(user.Password)
-		uid, err := uc.db.CreateUser(&new_user)
-		if err != nil {
-			return ctx.JSON(http.StatusConflict, err)
-		}
-		return ctx.JSON(http.StatusOK, echo.Map{"message": "user created", "uid": uid})
-	} else {
+	if uc.db.CheckUserExists(user.Username) {
 		return ctx.JSON(http.StatusConflict, echo.Map{"message": "user already exists"})
 	}
+	new_user := models.User{
+		Username:  user.Username,
+		Email:     user.Email,
+		FisrtName: user.FisrtName,
+		LastName:  user.LastName,
+		RoleID:    3,
+	}
+	new_user.SetPassword(user.Password)
+	uid, err := uc.db.CreateUser(&new_user)
+	if err != nil {
+		return ctx.JSON(http.StatusConflict, err)
+	}
+	return ctx.JSON(http.StatusCreated, echo.Map{"message": "user created", "uid": uid})
 }
 
 func (uc *userController) CheckUsername(ctx echo.Context) error {

@@ -14,6 +14,8 @@ func main() {
 	// Load environment variables
 	godotenv.Load()
 
+	logger := tools.InitializeLogger()
+
 	// Database
 	dsn := tools.DBConfig{
 		User:     os.Getenv("PG_USER"),
@@ -25,7 +27,7 @@ func main() {
 
 	// Router
 	router := echo.New()
-	routes.InitializeRoutes(router, db)
+	routes.InitializeRoutes(router, db, logger)
 	router.StaticFS("/", os.DirFS("./ui"))
 
 	router.Start(":80")

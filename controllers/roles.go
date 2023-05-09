@@ -7,15 +7,19 @@ import (
 	"github.com/arshamalh/blogo/databases"
 	"github.com/arshamalh/blogo/models"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 )
 
 type roleController struct {
-	db databases.Database
+	basicAttributes
 }
 
-func NewRoleController(db databases.Database) *roleController {
+func NewRoleController(db databases.Database, logger *zap.Logger) *roleController {
 	return &roleController{
-		db: db,
+		basicAttributes: basicAttributes{
+			db:     db,
+			logger: logger,
+		},
 	}
 }
 
@@ -27,7 +31,7 @@ func (rc *roleController) CreateRole(ctx echo.Context) error {
 	if err := rc.db.CreateRole(&role); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, echo.Map{"error": err.Error()})
 	}
-	return ctx.JSON(http.StatusOK, echo.Map{"role": role})
+	return ctx.JSON(http.StatusCreated, echo.Map{"role": role})
 }
 
 func (rc *roleController) UpdateRole(ctx echo.Context) error {
