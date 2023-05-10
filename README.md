@@ -8,7 +8,9 @@ Simple blog made using:
 - GORM orm
 - Docker virtualization
 - JWT
+- Github actions
+- - Zap & ELK for logging
 
 In the near future
-- Zap for logging
 - Swaggo
+- Dynamic Permission
