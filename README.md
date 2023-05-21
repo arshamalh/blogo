@@ -9,7 +9,7 @@ Simple blog made using:
 - Docker virtualization
 - JWT
 - Github actions
-- - Zap & ELK for logging
+- Zap for logging
 
 In the near future
 - Swaggo
