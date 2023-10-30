@@ -4,6 +4,7 @@ import (
 	"os"
 
 	database "github.com/arshamalh/blogo/databases/gorm"
+	"github.com/arshamalh/blogo/log"
 	"github.com/arshamalh/blogo/routes"
 	"github.com/arshamalh/blogo/tools"
 	"github.com/joho/godotenv"
@@ -13,6 +14,8 @@ import (
 func main() {
 	// Load environment variables
 	godotenv.Load()
+
+	log.InitializeLogger()
 
 	logger := tools.InitializeLogger()
 
