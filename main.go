@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"log"
 	"os"
 
 	database "github.com/arshamalh/blogo/databases/gorm"
@@ -10,9 +12,17 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// @title Blogo API server
+// @version 1.0
+// @description A simple blog for educational purposes
+
+// @host localhost:80
+// @BasePath /api/v1
 func main() {
 	// Load environment variables
-	godotenv.Load()
+	if err := godotenv.Load(); err != nil {
+		fmt.Println("no environment variables", err)
+	}
 
 	logger := tools.InitializeLogger()
 
@@ -30,5 +40,7 @@ func main() {
 	routes.InitializeRoutes(router, db, logger)
 	router.StaticFS("/", os.DirFS("./ui"))
 
-	router.Start(":80")
+	if err := router.Start(":80"); err != nil {
+		log.Fatal(err)
+	}
 }

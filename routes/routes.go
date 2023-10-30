@@ -10,12 +10,13 @@ import (
 
 	"github.com/arshamalh/blogo/models/permissions"
 	"github.com/labstack/echo/v4"
-	emdware "github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/echo/v4/middleware"
+	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
 func InitializeRoutes(router *echo.Echo, db databases.Database, logger *zap.Logger) {
 	// Basic configurations and middleware.
-	router.Use(emdware.CORSWithConfig(emdware.CORSConfig{
+	router.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"http://localhost:3000"},
 	}))
 
@@ -24,6 +25,8 @@ func InitializeRoutes(router *echo.Echo, db databases.Database, logger *zap.Logg
 	router.GET("/health", func(c echo.Context) error {
 		return c.JSON(http.StatusNoContent, nil)
 	})
+
+	router.GET("/docs/*", echoSwagger.WrapHandler)
 
 	/// ** Routes
 
