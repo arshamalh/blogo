@@ -1,14 +1,17 @@
 package database
 
 import (
+	"errors"
 	"log"
 
 	"github.com/arshamalh/blogo/models"
+	"gorm.io/gorm"
 )
 
 func (gdb *gormdb) CheckCategoryExists(name string) bool {
-	results := gdb.db.Take(&models.Category{}, "name = ?", name)
-	exists := results.RowsAffected > 0
+	var category models.Category
+	err := gdb.db.Where("name = ?", name).First(&category).Error
+	exists := !errors.Is(err, gorm.ErrRecordNotFound)
 
 	if exists {
 		log.Printf("Category with name '%s' exists.", name)
@@ -32,8 +35,8 @@ func (gdb *gormdb) CreateCategory(catg *models.Category) (uint, error) {
 }
 
 func (gdb *gormdb) GetCategory(name string) (*models.Category, error) {
-	catg := &models.Category{}
-	err := gdb.db.Preload("Post").First(&catg, "name = ?", name).Error
+	var category models.Category
+	err := gdb.db.Where("name = ?", name).Preload("Post").First(&category).Error
 
 	if err == nil {
 		log.Printf("Retrieved category with name '%s'", name)
@@ -41,7 +44,7 @@ func (gdb *gormdb) GetCategory(name string) (*models.Category, error) {
 		log.Printf("Failed to retrieve category with name '%s'. Error: %v", name, err)
 	}
 
-	return catg, err
+	return &category, err
 }
 
 func (gdb *gormdb) GetCategories() ([]models.Category, error) {

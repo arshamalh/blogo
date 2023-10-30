@@ -40,7 +40,7 @@ func (gdb *gormdb) GetUserPermissions(user_id uint) []permissions.Permission {
 	err := gdb.db.Preload("Role").First(&user, user_id).Error
 
 	if err != nil {
-		log.Printf("Failed to get permissions for user with ID: %d", user_id)
+		log.Printf("Failed to get permissions for user with ID: %d - Error: %v", user_id, err)
 		return nil
 	}
 

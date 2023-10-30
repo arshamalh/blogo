@@ -35,3 +35,9 @@ func LogInfo(message string) {
 		Gl.Info(message)
 	}
 }
+
+func LogError(err error) {
+	if Gl != nil {
+		Gl.Error("Error occurred: ", zap.Error(err))
+	}
+}

@@ -17,7 +17,7 @@ func main() {
 
 	log.InitializeLogger()
 
-	logger := tools.InitializeLogger()
+	logger := log.InitializeLogger()
 
 	// Database
 	dsn := tools.DBConfig{
@@ -34,4 +34,5 @@ func main() {
 	router.StaticFS("/", os.DirFS("./ui"))
 
 	router.Start(":80")
+
 }

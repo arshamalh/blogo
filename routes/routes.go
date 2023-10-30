@@ -24,8 +24,7 @@ func InitializeRoutes(router *echo.Echo, db databases.Database, logger *zap.Logg
 		return c.JSON(http.StatusNoContent, nil)
 	})
 
-	/// ** Routes
-
+	// Routes for users
 	user_routes := router.Group("/api/v1/users")
 	uc := controllers.NewUserController(db, logger)
 	{
@@ -40,7 +39,8 @@ func InitializeRoutes(router *echo.Echo, db databases.Database, logger *zap.Logg
 		})
 	}
 
-	post_routes := router.Group("api/v1/posts")
+	// Routes for posts
+	post_routes := router.Group("/api/v1/posts")
 	pc := controllers.NewPostController(db, logger)
 	{
 		post_routes.POST("/", func(c echo.Context) error {
@@ -52,19 +52,20 @@ func InitializeRoutes(router *echo.Echo, db databases.Database, logger *zap.Logg
 			log.Printf("Post update request received")
 			return pc.UpdatePost(c)
 		})
+	}
 
-		role_routes := router.Group("api/v1/roles")
-		rc := controllers.NewRoleController(db, logger)
-		{
-			role_routes.POST("/", func(c echo.Context) error {
-				log.Printf("Role creation request received")
-				return rc.CreateRole(c)
-			})
+	// Routes for roles
+	role_routes := router.Group("/api/v1/roles")
+	rc := controllers.NewRoleController(db, logger)
+	{
+		role_routes.POST("/", func(c echo.Context) error {
+			log.Printf("Role creation request received")
+			return rc.CreateRole(c)
+		})
 
-			role_routes.DELETE("/:id", func(c echo.Context) error {
-				log.Printf("Role deletion request received")
-				return rc.DeleteRole(c)
-			})
-		}
+		role_routes.DELETE("/:id", func(c echo.Context) error {
+			log.Printf("Role deletion request received")
+			return rc.DeleteRole(c)
+		})
 	}
 }

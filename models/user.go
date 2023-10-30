@@ -33,7 +33,7 @@ func (user *User) SetPassword(password string) {
 func (user *User) ComparePasswords(password string) error {
 	err := bcrypt.CompareHashAndPassword(user.Password, []byte(password))
 	if err != nil {
-		log.Printf("Password comparison failed for user %s: %s", user.Username, err.Error())
+		log.Printf("Error: Password comparison failed for user %s: %s", user.Username, err.Error())
 	}
 	return err
 }

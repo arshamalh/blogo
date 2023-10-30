@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/joho/godotenv v1.4.0
+	github.com/labstack/gommon v0.4.0
 	go.uber.org/zap v1.26.0
 	golang.org/x/crypto v0.6.0
 	gorm.io/driver/postgres v1.3.7
@@ -12,7 +13,6 @@ require (
 )
 
 require (
-	github.com/labstack/gommon v0.4.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect

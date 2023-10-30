@@ -43,6 +43,7 @@ func Get(session_id string) *Session {
 			return &session
 		}
 	}
+	log.Error("Session not found", "session_id", session_id)
 	return nil
 }
 
@@ -54,4 +55,5 @@ func Invalidate(session_id string) {
 			return
 		}
 	}
+	log.Error("Unable to invalidate session", "session_id", session_id)
 }
