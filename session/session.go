@@ -1,6 +1,10 @@
 package session
 
-import "strconv"
+import (
+	"strconv"
+
+	"github.com/labstack/gommon/log"
+)
 
 // Sessions should be stored in a database,
 // and it's better to use Redis for session as it's fast,
@@ -26,6 +30,10 @@ func Create(user_id uint) *Session {
 		Valid:     true,
 	}
 	sessions = append(sessions, session)
+	log.Info("Session created",
+		"session_id", session.SessionID,
+		"user_id", session.UserID,
+		"valid", session.Valid)
 	return &session
 }
 
@@ -42,6 +50,7 @@ func Invalidate(session_id string) {
 	for i, session := range sessions {
 		if session.SessionID == session_id {
 			sessions[i].Valid = false
+			log.Info("Session invalidated", "session_id", session_id)
 			return
 		}
 	}

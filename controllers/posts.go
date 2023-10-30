@@ -30,10 +30,17 @@ func NewPostController(db databases.Database, logger *zap.Logger) *postControlle
 	}
 }
 
+func (pc *postController) LogInfo(message string) {
+	if pc.logger != nil {
+		pc.logger.Info(message)
+	}
+}
+
 func (pc *postController) CreatePost(ctx echo.Context) error {
 	var post PostRequest
 	user_id, _ := tools.ExtractUserID(ctx)
 	if err := ctx.Bind(&post); err != nil {
+		pc.LogInfo("Unable to parse post")
 		return ctx.JSON(500, echo.Map{"error": err.Error()})
 	}
 
@@ -53,6 +60,7 @@ func (pc *postController) CreatePost(ctx echo.Context) error {
 		pc.logger.Error(err.Error())
 		return ctx.JSON(http.StatusConflict, echo.Map{"message": "cannot make the post"})
 	}
+
 	return ctx.JSON(http.StatusCreated, echo.Map{
 		"message": "Post created successfully",
 		"post_id": post_id,
@@ -60,6 +68,7 @@ func (pc *postController) CreatePost(ctx echo.Context) error {
 }
 
 func (pc *postController) DeletePost(ctx echo.Context) error {
+
 	user_id, _ := tools.ExtractUserID(ctx)
 	post_id, _ := strconv.ParseUint(ctx.Param("id"), 10, 64)
 
@@ -73,10 +82,9 @@ func (pc *postController) DeletePost(ctx echo.Context) error {
 		}
 	}
 
-	// Delete post
 	if err := pc.db.DeletePost(uint(post_id)); err != nil {
+		pc.LogInfo("Unable to delete post")
 		return ctx.JSON(http.StatusInternalServerError, echo.Map{"error": err.Error()})
-
 	}
 	return ctx.JSON(http.StatusOK, echo.Map{"message": "Post deleted"})
 }

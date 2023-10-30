@@ -29,3 +29,9 @@ func InitializeLogger() *zap.Logger {
 	return Gl
 
 }
+
+func LogInfo(message string) {
+	if Gl != nil {
+		Gl.Info(message)
+	}
+}

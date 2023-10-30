@@ -1,6 +1,7 @@
 package permissions
 
 import (
+	"log"
 	"strconv"
 	"strings"
 )
@@ -10,6 +11,7 @@ import (
 // Any user has permission to delete or edit their own posts or categories, or approve comment on their own posts.
 //
 // Post permissions are not related to category permissions in anyway.
+
 type Permission uint8
 
 func (perm Permission) String() string {
@@ -56,6 +58,7 @@ func Compress(permissions []Permission) string {
 	for _, permission := range permissions {
 		compressed += permission.String() + ":"
 	}
+	log.Printf("Compressed permissions: %s", compressed) // Log the compressed permissions
 	return compressed[:len(compressed)-1]
 }
 
@@ -64,7 +67,9 @@ func Decompress(compressed string) []Permission {
 	for _, perm := range strings.Split(compressed, ":") {
 		if perm != "" {
 			uint_perm, _ := strconv.ParseUint(perm, 10, 8)
-			perms = append(perms, Permission(uint_perm))
+			permission := Permission(uint_perm)
+			perms = append(perms, permission)
+			log.Printf("Decompressed permission: %s", permission.String()) // Log the decompressed permissions
 		}
 	}
 	return perms

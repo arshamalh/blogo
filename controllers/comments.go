@@ -23,20 +23,31 @@ func NewCommentController(db databases.Database, logger *zap.Logger) *commentCon
 	}
 }
 
+func (cc *commentController) LogInfo(message string) {
+	if cc.logger != nil {
+		cc.logger.Info(message)
+	}
+}
+
 func (cc *commentController) CreateComment(ctx echo.Context) error {
 	var comment models.Comment
-	user_id, err := tools.ExtractUserID(ctx)
+	userID, err := tools.ExtractUserID(ctx)
 	if err != nil {
 		cc.logger.Error(err.Error())
-		return ctx.JSON(http.StatusUnauthorized, echo.Map{"error": "there is problem with your user"})
+		return ctx.JSON(http.StatusUnauthorized, echo.Map{"error": "there is a problem with your user"})
 	}
+
 	if err := ctx.Bind(&comment); err != nil {
+		cc.LogInfo("Unable to parse comment")
 		return ctx.JSON(http.StatusBadRequest, echo.Map{"error": "unable to parse comment"})
 	}
-	comment.UserID = user_id
+
+	comment.UserID = userID
 	if err := cc.db.AddComment(&comment); err != nil {
+		cc.LogInfo("Unable to add comment")
 		return ctx.JSON(http.StatusInternalServerError, echo.Map{"error": "unable to add comment"})
 	}
 
+	cc.LogInfo("Comment added successfully")
 	return ctx.JSON(http.StatusCreated, echo.Map{"comment": comment})
 }

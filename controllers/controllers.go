@@ -9,3 +9,9 @@ type basicAttributes struct {
 	db     databases.Database
 	logger *zap.Logger
 }
+
+func (ba *basicAttributes) LogInfo(message string) {
+	if ba.logger != nil {
+		ba.logger.Info(message)
+	}
+}
