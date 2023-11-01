@@ -2,17 +2,29 @@ package controllers
 
 import (
 	"net/http"
-	"os"
-	"strconv"
 	"time"
 
 	"github.com/arshamalh/blogo/databases"
 	"github.com/arshamalh/blogo/models"
-	"github.com/arshamalh/blogo/session"
-	"github.com/arshamalh/blogo/tools"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
+
+var Gl *zap.Logger
+
+func init() {
+	InitializeLogger()
+}
+
+func InitializeLogger() {
+	cfg := zap.NewProductionConfig()
+	logger, err := cfg.Build()
+	if err != nil {
+		panic("Failed to initialize logger: " + err.Error())
+	}
+	defer logger.Sync()
+	Gl = logger
+}
 
 type userController struct {
 	basicAttributes
@@ -58,10 +70,10 @@ func (uc *userController) UserRegister(ctx echo.Context) error {
 	new_user.SetPassword(user.Password)
 	uid, err := uc.db.CreateUser(&new_user)
 	if err != nil {
-		uc.LogInfo("Failed to create user: " + err.Error())
-		return ctx.JSON(http.StatusConflict, err)
+		Gl.Error("Failed to create user", zap.Error(err), zap.String("username", user.Username))
+		return ctx.JSON(http.StatusConflict, echo.Map{"message": "Failed to create user"})
 	}
-	uc.LogInfo("User created: " + new_user.Username)
+	Gl.Info("User created", zap.String("username", new_user.Username))
 	return ctx.JSON(http.StatusCreated, echo.Map{"message": "user created", "uid": uid})
 }
 
@@ -71,33 +83,18 @@ func (uc *userController) UserLogin(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, echo.Map{"message": "invalid request"})
 	}
 
-	dbUser, err := uc.db.GetUserByUsername(user.Username)
+	dbUser, err := uc.db.GetUserByUsername(ctx.FormValue("username"))
 	if err != nil {
-		if dbUser.ID == 0 {
-			uc.LogInfo("User not found")
-			return ctx.JSON(http.StatusUnauthorized, echo.Map{"message": "user not found"})
-		}
-		uc.LogInfo("Error getting user: " + err.Error())
+		Gl.Error("Error getting user", zap.Error(err))
 		return ctx.JSON(http.StatusInternalServerError, echo.Map{"message": "error getting user"})
 	}
 
 	if dbUser.ComparePasswords(user.Password) != nil {
-		uc.LogInfo("Wrong password for user: " + dbUser.Username)
+		Gl.Error("Wrong password", zap.String("username", dbUser.Username))
 		return ctx.JSON(http.StatusUnauthorized, echo.Map{"message": "wrong password"})
 	}
-
-	sn := session.Create(dbUser.ID)
-
-	access_token, _ := tools.GenerateToken(strconv.Itoa(int(dbUser.ID)), time.Hour*1, os.Getenv("JWT_SECRET"))
-	ctx.SetCookie(&http.Cookie{
-		Name:     "access_token",
-		Path:     "/",
-		Value:    access_token,
-		Expires:  time.Now().Add(time.Hour * 24 * 7),
-		HttpOnly: true,
-	})
-
-	uc.LogInfo("User logged in: " + dbUser.Username)
+	sn := "session"
+	Gl.Info("User logged in", zap.String("username", dbUser.Username))
 	return ctx.JSON(http.StatusOK, echo.Map{"message": "login success", "session": sn})
 }
 
@@ -122,6 +119,6 @@ func (uc *userController) UserLogout(ctx echo.Context) error {
 }
 
 func (uc *userController) UserID(ctx echo.Context) error {
-	value := ctx.Get("user_id")
-	return ctx.JSON(200, echo.Map{"user_id": value})
+
+	return ctx.JSON(http.StatusOK, echo.Map{"message": "logout success"})
 }

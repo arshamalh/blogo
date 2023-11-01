@@ -36,33 +36,3 @@ type Database interface {
 	GetRole(id uint) (models.Role, error)
 	GetRoles() ([]models.Role, error)
 }
-
-/*
-
-type Database struct {
-	logger *log.Logger
-}
-
-func NewDatabase(logger *log.Logger) *Database {
-	return &Database{logger: logger}
-}
-
-func (db *Database) CheckUserExists(username string) bool {
-	db.logger.Println("CheckUserExists - Checking if user exists:", username)
-
-	return true
-}
-
-func (db *Database) CreateUser(user *models.User) (uint, error) {
-	db.logger.Println("CreateUser - Creating new user:", user.Username)
-
-	return 1, nil
-}
-
-func (db *Database) GetUserByUsername(username string) (*models.User, error) {
-	db.logger.Println("GetUserByUsername - Getting user by username:", username)
-
-	return &models.User{}, nil
-}
-
-*/

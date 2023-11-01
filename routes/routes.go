@@ -20,7 +20,7 @@ func InitializeRoutes(router *echo.Echo, db databases.Database, logger *zap.Logg
 	}))
 
 	router.GET("/health", func(c echo.Context) error {
-		log.Printf("Health check request received")
+
 		return c.JSON(http.StatusNoContent, nil)
 	})
 

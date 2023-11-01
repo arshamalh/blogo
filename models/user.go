@@ -27,7 +27,7 @@ func (user *User) SetPassword(password string) {
 		return
 	}
 	user.Password = hashedPassword
-	log.Printf("Password set for user %s", user.Username)
+
 }
 
 func (user *User) ComparePasswords(password string) error {

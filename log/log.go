@@ -30,7 +30,7 @@ func InitializeLogger() *zap.Logger {
 
 }
 
-func LogInfo(message string) {
+func GlInfo(message string) {
 	if Gl != nil {
 		Gl.Info(message)
 	}
