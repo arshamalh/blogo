@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/arshamalh/blogo/databases"
+	"github.com/arshamalh/blogo/log"
 	"github.com/arshamalh/blogo/models"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
@@ -70,10 +71,10 @@ func (uc *userController) UserRegister(ctx echo.Context) error {
 	new_user.SetPassword(user.Password)
 	uid, err := uc.db.CreateUser(&new_user)
 	if err != nil {
-		Gl.Error("Failed to create user", zap.Error(err), zap.String("username", user.Username))
+		log.Gl.Error("Failed to create user", zap.Error(err), zap.String("username", user.Username))
 		return ctx.JSON(http.StatusConflict, echo.Map{"message": "Failed to create user"})
 	}
-	Gl.Info("User created", zap.String("username", new_user.Username))
+	log.Gl.Info("User created", zap.String("username", new_user.Username))
 	return ctx.JSON(http.StatusCreated, echo.Map{"message": "user created", "uid": uid})
 }
 
@@ -85,16 +86,16 @@ func (uc *userController) UserLogin(ctx echo.Context) error {
 
 	dbUser, err := uc.db.GetUserByUsername(ctx.FormValue("username"))
 	if err != nil {
-		Gl.Error("Error getting user", zap.Error(err))
+		log.Gl.Error("Error getting user", zap.Error(err))
 		return ctx.JSON(http.StatusInternalServerError, echo.Map{"message": "error getting user"})
 	}
 
 	if dbUser.ComparePasswords(user.Password) != nil {
-		Gl.Error("Wrong password", zap.String("username", dbUser.Username))
+		log.Gl.Error("Wrong password", zap.String("username", dbUser.Username))
 		return ctx.JSON(http.StatusUnauthorized, echo.Map{"message": "wrong password"})
 	}
 	sn := "session"
-	Gl.Info("User logged in", zap.String("username", dbUser.Username))
+	log.Gl.Info("User logged in", zap.String("username", dbUser.Username))
 	return ctx.JSON(http.StatusOK, echo.Map{"message": "login success", "session": sn})
 }
 

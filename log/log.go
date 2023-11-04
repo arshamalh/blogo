@@ -30,12 +30,6 @@ func InitializeLogger() *zap.Logger {
 
 }
 
-func GlInfo(message string) {
-	if Gl != nil {
-		Gl.Info(message)
-	}
-}
-
 func LogError(err error) {
 	if Gl != nil {
 		Gl.Error("Error occurred: ", zap.Error(err))
