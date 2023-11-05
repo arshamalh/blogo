@@ -4,28 +4,30 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/arshamalh/blogo/log"
 	"github.com/arshamalh/blogo/tools"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 )
 
 func RequireLogin(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(ctx echo.Context) error {
 		access_token, err := ctx.Cookie("access_token")
-		if err != nil {
-			return ctx.JSON(http.StatusUnauthorized, "you should login")
-		}
-
-		if access_token.Value == "" {
-			return ctx.JSON(http.StatusUnauthorized, "you should login")
+		if err != nil || access_token.Value == "" {
+			log.Gl.Error("User is not authenticated: no access token provided", zap.Any("error", err))
+			return ctx.JSON(http.StatusUnauthorized, "you should log in")
 		}
 
 		jwt_access, err := tools.ExtractTokenData(access_token.Value, os.Getenv("JWT_SECRET"))
 		if err != nil {
+			log.Gl.Error("Invalid token", zap.Any("error", err))
 			return ctx.JSON(http.StatusUnauthorized, "invalid token")
 		}
 
 		// If access token is valid and not expired, extract data from it
-		ctx.Set("user_id", jwt_access.Subject)
+		userID := jwt_access.Subject
+		ctx.Set("user_id", userID)
+		log.Gl.Info("User with ID has been authenticated", zap.Any("user_id", userID))
 		return next(ctx)
 	}
 }

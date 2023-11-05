@@ -4,17 +4,19 @@ import (
 	"os"
 
 	database "github.com/arshamalh/blogo/databases/gorm"
+	"github.com/arshamalh/blogo/log"
 	"github.com/arshamalh/blogo/routes"
 	"github.com/arshamalh/blogo/tools"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 )
+
+var logger = log.Gl
 
 func main() {
 	// Load environment variables
 	godotenv.Load()
-
-	logger := tools.InitializeLogger()
 
 	// Database
 	dsn := tools.DBConfig{
@@ -23,7 +25,11 @@ func main() {
 		DBName:   os.Getenv("DB_NAME"),
 		Host:     os.Getenv("HOST"),
 	}
-	db := database.Connect(dsn.String())
+	db, err := database.Connect(dsn.String())
+	if err != nil {
+		log.Gl.Error("Failed to connect to the database.", zap.Error(err))
+		return
+	}
 
 	// Router
 	router := echo.New()

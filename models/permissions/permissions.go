@@ -3,13 +3,12 @@ package permissions
 import (
 	"strconv"
 	"strings"
+
+	"github.com/arshamalh/blogo/log"
 )
 
-// Any user have one or some permissions.
-//
-// Any user has permission to delete or edit their own posts or categories, or approve comment on their own posts.
-//
-// Post permissions are not related to category permissions in anyway.
+// Any user has permission to delete or edit their own posts or categories, or approve comments on their own posts.
+// Post permissions are not related to category permissions in any way.
 type Permission uint8
 
 func (perm Permission) String() string {
@@ -29,25 +28,12 @@ const (
 	// Full content access means this user can make or delete any post or category or comment, but can't do anything with other users.
 	FullContents Permission = 20
 
-	// Permission to make new posts and be an author.
-	CreatePost Permission = 21
-
-	// Users with this permission can edit others posts.
-	EditPost Permission = 22
-
-	// Users with this permission can delete others posts.
-	DeletePost Permission = 23
-
-	// Permission to create new categories.
+	CreatePost     Permission = 21
+	EditPost       Permission = 22
+	DeletePost     Permission = 23
 	CreateCategory Permission = 24
-
-	// Users with this permission can edit others categories.
-	EditCategory Permission = 25
-
-	// Users with this permission can delete others categories.
+	EditCategory   Permission = 25
 	DeleteCategory Permission = 26
-
-	// Permission to approve or reject comments.
 	ApproveComment Permission = 27
 )
 
@@ -63,9 +49,17 @@ func Decompress(compressed string) []Permission {
 	var perms []Permission
 	for _, perm := range strings.Split(compressed, ":") {
 		if perm != "" {
-			uint_perm, _ := strconv.ParseUint(perm, 10, 8)
-			perms = append(perms, Permission(uint_perm))
+			uintPerm, _ := strconv.ParseUint(perm, 10, 8)
+			perms = append(perms, Permission(uintPerm))
 		}
 	}
 	return perms
+}
+
+func LogError(message string) {
+	log.Gl.Error(message)
+}
+
+func LogInfo(message string) {
+	log.Gl.Info(message)
 }

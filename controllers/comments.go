@@ -4,39 +4,49 @@ import (
 	"net/http"
 
 	"github.com/arshamalh/blogo/databases"
+	"github.com/arshamalh/blogo/log"
 	"github.com/arshamalh/blogo/models"
 	"github.com/arshamalh/blogo/tools"
 	"github.com/labstack/echo/v4"
-	"go.uber.org/zap"
 )
 
 type commentController struct {
-	basicAttributes
+	db databases.Database
 }
 
-func NewCommentController(db databases.Database, logger *zap.Logger) *commentController {
+func NewCommentController(db databases.Database) *commentController {
 	return &commentController{
-		basicAttributes: basicAttributes{
-			db:     db,
-			logger: logger,
-		},
+		db: db,
 	}
 }
 
 func (cc *commentController) CreateComment(ctx echo.Context) error {
 	var comment models.Comment
-	user_id, err := tools.ExtractUserID(ctx)
+	userID, err := tools.ExtractUserID(ctx)
 	if err != nil {
-		cc.logger.Error(err.Error())
-		return ctx.JSON(http.StatusUnauthorized, echo.Map{"error": "there is problem with your user"})
+		log.Gl.Error("There is a problem with the user")
+		return ctx.JSON(http.StatusUnauthorized, echo.Map{"error": "there is a problem with your user"})
 	}
+
 	if err := ctx.Bind(&comment); err != nil {
+		log.Gl.Error("Unable to parse comment")
 		return ctx.JSON(http.StatusBadRequest, echo.Map{"error": "unable to parse comment"})
 	}
-	comment.UserID = user_id
+
+	comment.UserID = userID
+
 	if err := cc.db.AddComment(&comment); err != nil {
+		log.Gl.Error("Unable to add comment")
 		return ctx.JSON(http.StatusInternalServerError, echo.Map{"error": "unable to add comment"})
 	}
 
-	return ctx.JSON(http.StatusCreated, echo.Map{"comment": comment})
+	log.Gl.Info("Comment added successfully")
+
+	response := map[string]interface{}{
+		"comment":    comment,
+		"author_id":  userID,
+		"comment_id": comment.ID,
+	}
+
+	return ctx.JSON(http.StatusCreated, response)
 }
