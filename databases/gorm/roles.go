@@ -41,7 +41,7 @@ func (gdb *gormdb) GetRole(id uint) (models.Role, error) {
 	err := gdb.db.First(&role, id).Error
 
 	if err != nil {
-		log.Gl.Error(fmt.Sprintf("Error: %d: %v", id, err))
+		log.Gl.Error(err.Error())
 	}
 
 	return role, err
@@ -52,7 +52,7 @@ func (gdb *gormdb) GetRoles() ([]models.Role, error) {
 	err := gdb.db.Find(&roles).Error
 
 	if err != nil {
-		log.Gl.Error(fmt.Sprintf("Error: %v", err))
+		log.Gl.Error(err.Error())
 	}
 
 	return roles, err

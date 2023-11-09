@@ -9,7 +9,6 @@ import (
 	"github.com/arshamalh/blogo/tools"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
-	"go.uber.org/zap"
 )
 
 var logger = log.Gl
@@ -27,7 +26,7 @@ func main() {
 	}
 	db, err := database.Connect(dsn.String())
 	if err != nil {
-		log.Gl.Error("Error:", zap.Error(err))
+		log.Gl.Error(err.Error())
 		return
 	}
 

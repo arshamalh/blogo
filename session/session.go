@@ -24,6 +24,7 @@ type Session struct {
 	SessionID string `json:"session_id"`
 	UserID    uint   `json:"user_id"`
 	Valid     bool   `json:"valid"`
+	DbUser    uint   `json:"db_user"`
 }
 
 var sessions []Session
@@ -53,7 +54,7 @@ func Get(session_id string) *Session {
 			return &session
 		}
 	}
-	Gl.Error("Error:", zap.String("session_id", session_id))
+	// log.Gl.Error(err.Error())
 	return nil
 }
 
@@ -65,5 +66,5 @@ func Invalidate(session_id string) {
 			return
 		}
 	}
-	Gl.Error("error:", zap.String("session_id", session_id))
+	// log.Gl.Error(err.Error())
 }

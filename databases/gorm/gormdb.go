@@ -26,7 +26,7 @@ func Connect(dsn string) (*gormdb, error) {
 	})
 
 	if err != nil {
-		log.Gl.Error("Error:", zap.Error(err))
+		log.Gl.Error(err.Error())
 		return nil, err
 	}
 

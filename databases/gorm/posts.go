@@ -40,7 +40,7 @@ func (gdb *gormdb) GetPost(id uint) (models.Post, error) {
 	err := gdb.db.Preload("Author").Preload("Category").Preload("Comment").First(&post, id).Error
 
 	if err != nil {
-		log.Gl.Error(fmt.Sprintf("Error: %d: %v", id, err))
+		log.Gl.Error(err.Error())
 	}
 
 	return post, err
@@ -51,7 +51,7 @@ func (gdb *gormdb) GetPosts() ([]models.Post, error) {
 	err := gdb.db.Preload("Author").Preload("Category").Find(&posts).Error
 
 	if err != nil {
-		log.Gl.Error(fmt.Sprintf("Error: %v", err))
+		log.Gl.Error(err.Error())
 	}
 
 	return posts, err

@@ -1,8 +1,6 @@
 package database
 
 import (
-	"fmt"
-
 	"github.com/arshamalh/blogo/log"
 	"github.com/arshamalh/blogo/models"
 	"github.com/arshamalh/blogo/models/permissions"
@@ -17,7 +15,7 @@ func (gdb *gormdb) CreateUser(user *models.User) (uint, error) {
 	err := gdb.db.Create(&user).Error
 
 	if err == nil {
-		log.Gl.Error(fmt.Sprintf("Error: %d Error: %s", user.ID, err))
+		log.Gl.Error(err.Error())
 	}
 
 	return user.ID, err
@@ -28,7 +26,7 @@ func (gdb *gormdb) GetUserByUsername(username string) (*models.User, error) {
 	err := gdb.db.First(&user, "username = ?", username).Error
 
 	if err != nil {
-		log.Gl.Error(fmt.Sprintf("Error: %s Error: %s", username, err))
+		log.Gl.Error(err.Error())
 
 	}
 
@@ -40,7 +38,7 @@ func (gdb *gormdb) GetUserPermissions(user_id uint) []permissions.Permission {
 	err := gdb.db.Preload("Role").First(&user, user_id).Error
 
 	if err != nil {
-		log.Gl.Error(fmt.Sprintf("Error: %d Error: %s", user_id, err))
+		log.Gl.Error(err.Error())
 
 		return nil
 	}

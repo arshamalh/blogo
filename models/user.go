@@ -2,7 +2,6 @@ package models
 
 import (
 	"github.com/arshamalh/blogo/log"
-	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -23,7 +22,7 @@ type User struct {
 func (user *User) SetPassword(password string) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 12)
 	if err != nil {
-		log.Gl.Error("Error:", zap.String("username", user.Username), zap.Error(err))
+		log.Gl.Error(err.Error())
 		return
 	}
 
@@ -33,7 +32,7 @@ func (user *User) SetPassword(password string) {
 func (user *User) ComparePasswords(password string) error {
 	err := bcrypt.CompareHashAndPassword(user.Password, []byte(password))
 	if err != nil {
-		log.Gl.Error("Error:", zap.String("username", user.Username), zap.Error(err))
+		log.Gl.Error(err.Error())
 
 	}
 	return err
