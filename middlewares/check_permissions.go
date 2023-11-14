@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/arshamalh/blogo/databases"
-	"github.com/arshamalh/blogo/log"
 	"github.com/arshamalh/blogo/models/permissions"
 	"github.com/arshamalh/blogo/tools"
 	"github.com/labstack/echo/v4"
@@ -19,7 +18,7 @@ func CheckPermissions(db databases.Database, permission permissions.Permission) 
 
 			// Log information
 			if hasPermission {
-				log.Gl.Info(fmt.Sprintf("User with ID %d has the required permission: %s", userID, permission))
+				fmt.Printf("User with ID %d has the required permission: %s\n", userID, permission)
 			}
 
 			ctx.Set("permissable", hasPermission)

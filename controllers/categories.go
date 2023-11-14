@@ -29,16 +29,15 @@ func (cc *categoryController) CreateCategory(ctx echo.Context) error {
 		log.Gl.Error(err.Error())
 		return ctx.JSON(http.StatusBadRequest, echo.Map{"status": "invalid request"})
 	} else if cc.db.CheckCategoryExists(category.Name) {
-		log.Gl.Info("Category already exists")
+		log.Gl.Info("", zap.String("category_name", category.Name))
 		return ctx.JSON(http.StatusConflict, echo.Map{"status": "category already exists"})
 	} else {
 		_, err := cc.db.CreateCategory(&category)
 		if err != nil {
 			log.Gl.Error(err.Error())
-
 			return ctx.JSON(http.StatusConflict, echo.Map{"status": "cannot create category"})
 		}
-		log.Gl.Info("Category created")
+		log.Gl.Info("", zap.String("category_name", category.Name), zap.Uint("category_id", category.ID))
 		return ctx.JSON(http.StatusCreated, echo.Map{"status": "category created"})
 	}
 }
@@ -46,7 +45,7 @@ func (cc *categoryController) CreateCategory(ctx echo.Context) error {
 func (cc *categoryController) GetCategory(ctx echo.Context) error {
 	category, err := cc.db.GetCategory(ctx.Param("name"))
 	if err != nil || category.ID == 0 {
-		log.Gl.Info("Category not found")
+		log.Gl.Info("", zap.String("category_name", ctx.Param("name")))
 		return ctx.JSON(http.StatusNotFound, echo.Map{"status": "category not found"})
 	}
 	return ctx.JSON(http.StatusOK, category)
@@ -56,7 +55,6 @@ func (cc *categoryController) GetCategories(ctx echo.Context) error {
 	categories, err := cc.db.GetCategories()
 	if err != nil {
 		log.Gl.Error(err.Error())
-
 		return ctx.JSON(http.StatusNotFound, echo.Map{"status": "categories not found"})
 	}
 	return ctx.JSON(http.StatusOK, categories)

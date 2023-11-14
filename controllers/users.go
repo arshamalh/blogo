@@ -50,12 +50,6 @@ func NewUserController(db databases.Database, logger *zap.Logger) *userControlle
 	}
 }
 
-func (uc *userController) LogInfo(message string, fields ...zap.Field) {
-	if log.Gl != nil {
-		log.Gl.Info(message, fields...)
-	}
-}
-
 // ShowAccount   godoc
 // @Summary      Register a user
 // @Description  Register a user
@@ -88,10 +82,10 @@ func (uc *userController) UserRegister(ctx echo.Context) error {
 	new_user.SetPassword(user.Password)
 	uid, err := uc.db.CreateUser(&new_user)
 	if err != nil {
-		uc.LogInfo("Failed to create user", zap.Error(err), zap.String("username", user.Username))
+		log.Gl.Error(err.Error())
 		return ctx.JSON(http.StatusConflict, echo.Map{"message": "Failed to create user"})
 	}
-	uc.LogInfo("User created", zap.String("username", new_user.Username))
+	log.Gl.Info("", zap.String("username", new_user.Username))
 	return ctx.JSON(http.StatusCreated, echo.Map{"message": "user created", "uid": uid})
 }
 
@@ -105,21 +99,21 @@ func (uc *userController) UserLogin(ctx echo.Context) error {
 	// Check if user exists
 	dbUser, err := uc.db.GetUserByUsername(ctx.FormValue("username"))
 	if err != nil {
-		uc.LogInfo("Error getting user", zap.Error(err))
+		log.Gl.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, echo.Map{"message": "error getting user"})
 	}
 
 	// Check if password is correct
 	if dbUser.ComparePasswords(user.Password) != nil {
-		uc.LogInfo("Wrong password", zap.String("username", dbUser.Username))
+
 		return ctx.JSON(http.StatusUnauthorized, echo.Map{"message": "wrong password"})
 	}
 
 	// Store username in the session
-	sn := session.Create(db_user.ID)
+	sn := session.Create(dbUser.ID)
 
 	// Generate access token and refresh token
-	uc.LogInfo("User logged in", zap.String("username", dbUser.Username))
+	log.Gl.Error(err.Error())
 	return ctx.JSON(http.StatusOK, echo.Map{"message": "login success", "session": sn})
 }
 

@@ -40,8 +40,6 @@ func (cc *commentController) CreateComment(ctx echo.Context) error {
 		return ctx.JSON(http.StatusInternalServerError, echo.Map{"error": "unable to add comment"})
 	}
 
-	log.Gl.Info("Comment added successfully")
-
 	response := map[string]interface{}{
 		"comment":    comment,
 		"author_id":  userID,
