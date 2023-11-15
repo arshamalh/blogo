@@ -8,6 +8,7 @@ import (
 	"github.com/arshamalh/blogo/models"
 	"github.com/arshamalh/blogo/tools"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 )
 
 type commentController struct {
@@ -45,6 +46,6 @@ func (cc *commentController) CreateComment(ctx echo.Context) error {
 		"author_id":  userID,
 		"comment_id": comment.ID,
 	}
-
+	log.Gl.Info("Comment created", zap.Any("response", response))
 	return ctx.JSON(http.StatusCreated, response)
 }

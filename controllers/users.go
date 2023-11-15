@@ -85,7 +85,7 @@ func (uc *userController) UserRegister(ctx echo.Context) error {
 		log.Gl.Error(err.Error())
 		return ctx.JSON(http.StatusConflict, echo.Map{"message": "Failed to create user"})
 	}
-	log.Gl.Info("", zap.String("username", new_user.Username))
+	log.Gl.Info("User created", zap.String("username", new_user.Username))
 	return ctx.JSON(http.StatusCreated, echo.Map{"message": "user created", "uid": uid})
 }
 
@@ -113,7 +113,6 @@ func (uc *userController) UserLogin(ctx echo.Context) error {
 	sn := session.Create(dbUser.ID)
 
 	// Generate access token and refresh token
-	log.Gl.Error(err.Error())
 	return ctx.JSON(http.StatusOK, echo.Map{"message": "login success", "session": sn})
 }
 
@@ -140,5 +139,6 @@ func (uc *userController) UserLogout(ctx echo.Context) error {
 func (uc *userController) UserID(ctx echo.Context) error {
 
 	value := ctx.Get("user_id")
+	log.Gl.Info("User ID retrieved", zap.Any("user_id", value))
 	return ctx.JSON(200, echo.Map{"user_id": value})
 }

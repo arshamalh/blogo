@@ -35,7 +35,7 @@ func (pc *postController) CreatePost(ctx echo.Context) error {
 	var post PostRequest
 	userID, _ := tools.ExtractUserID(ctx)
 	if err := ctx.Bind(&post); err != nil {
-
+		log.Gl.Error(err.Error())
 		return ctx.JSON(500, echo.Map{"error": err.Error()})
 	}
 
@@ -56,6 +56,7 @@ func (pc *postController) CreatePost(ctx echo.Context) error {
 		return ctx.JSON(http.StatusConflict, echo.Map{"message": "cannot make the post"})
 	}
 
+	log.Gl.Info("Post created", zap.Any("post_id", postID))
 	return ctx.JSON(http.StatusCreated, echo.Map{
 		"message": "Post created successfully",
 		"post_id": postID,
@@ -80,13 +81,14 @@ func (pc *postController) DeletePost(ctx echo.Context) error {
 		log.Gl.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, echo.Map{"error": err.Error()})
 	}
-	log.Gl.Info("", zap.Uint("post_id", uint(postID)))
+	log.Gl.Info("Post deleted", zap.Uint("post_id", uint(postID)))
 	return ctx.JSON(http.StatusOK, echo.Map{"message": "Post deleted"})
 }
 
 func (pc *postController) UpdatePost(ctx echo.Context) error {
 	var post PostRequest
 	if err := ctx.Bind(&post); err != nil {
+		log.Gl.Error(err.Error())
 		return ctx.JSON(http.StatusBadRequest, echo.Map{"status": "invalid request"})
 	}
 
@@ -105,15 +107,17 @@ func (pc *postController) UpdatePost(ctx echo.Context) error {
 
 	// Update post
 	if err := pc.db.UpdatePost(&newPost); err != nil {
+		log.Gl.Error(err.Error())
 		return ctx.JSON(500, echo.Map{"error": err.Error()})
 	}
-	log.Gl.Info("", zap.Uint("post_id", uint(postID)))
+	log.Gl.Info("Post updated", zap.Uint("post_id", uint(postID)))
 	return ctx.JSON(200, echo.Map{"post": newPost})
 }
 
 func (pc *postController) GetPost(ctx echo.Context) error {
 	postID, _ := strconv.ParseUint(ctx.Param("id"), 10, 64)
 	post, _ := pc.db.GetPost(uint(postID))
+	log.Gl.Info("Post retrieved", zap.Uint("post_id", uint(postID)))
 	return ctx.JSON(200, echo.Map{"post": post})
 }
 
