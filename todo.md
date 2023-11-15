@@ -1,6 +1,7 @@
 - [ ] Use Zap for logging
 - [ ] Use swaggo for better and more clear API documentation
 - [ ] Remove `gorm` and use `bun` instead
+- [ ] Use cobra to make it a cli application
 - [ ] Add Edit post route, including editing posts categories, id of editor should be recorded if that's not the original author.
 - [ ] Add comments, 
 - [ ] Add comments related permissions such as deleting or verifying
