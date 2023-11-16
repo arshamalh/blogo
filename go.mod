@@ -5,6 +5,8 @@ go 1.18
 require (
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/joho/godotenv v1.4.0
+	github.com/swaggo/echo-swagger v1.4.1
+	go.uber.org/zap v1.24.0
 	golang.org/x/crypto v0.6.0
 	gorm.io/driver/postgres v1.3.7
 	gorm.io/gorm v1.23.5
@@ -29,7 +31,6 @@ require (
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	go.uber.org/zap v1.24.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/tools v0.7.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
@@ -48,7 +49,6 @@ require (
 	github.com/jinzhu/now v1.1.4 // indirect
 	github.com/labstack/echo/v4 v4.10.2
 	github.com/mattn/go-isatty v0.0.17 // indirect
-	github.com/swaggo/echo-swagger v1.4.1
 	golang.org/x/net v0.8.0 // indirect
 	golang.org/x/sys v0.6.0 // indirect
 	golang.org/x/text v0.8.0 // indirect

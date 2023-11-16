@@ -1,4 +1,4 @@
-- [ ] Use Zap for logging
+- [x] Use Zap for logging
 - [ ] Use swaggo for better and more clear API documentation
 - [ ] Remove `gorm` and use `bun` instead
 - [ ] Use cobra to make it a cli application
