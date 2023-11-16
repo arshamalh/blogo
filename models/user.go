@@ -19,21 +19,22 @@ type User struct {
 	RoleID    uint      `json:"role_id"`
 }
 
-func (user *User) SetPassword(password string) {
+func (user *User) SetPassword(password string) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 12)
 	if err != nil {
 		log.Gl.Error(err.Error())
-		return
+		return err
 	}
 
 	user.Password = hashedPassword
+	return nil
 }
 
 func (user *User) ComparePasswords(password string) error {
 	err := bcrypt.CompareHashAndPassword(user.Password, []byte(password))
 	if err != nil {
 		log.Gl.Error(err.Error())
-
+		return err
 	}
-	return err
+	return nil
 }

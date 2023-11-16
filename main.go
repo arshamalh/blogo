@@ -11,11 +11,13 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-var logger = log.Gl
-
 func main() {
 	// Load environment variables
-	godotenv.Load()
+	logger := log.InitializeLogger()
+
+	if err := godotenv.Load(); err != nil {
+		logger.Error(err.Error())
+	}
 
 	// Database
 	dsn := tools.DBConfig{

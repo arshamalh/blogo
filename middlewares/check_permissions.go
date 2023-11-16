@@ -1,8 +1,6 @@
 package middlewares
 
 import (
-	"fmt"
-
 	"github.com/arshamalh/blogo/databases"
 	"github.com/arshamalh/blogo/models/permissions"
 	"github.com/arshamalh/blogo/tools"
@@ -15,11 +13,6 @@ func CheckPermissions(db databases.Database, permission permissions.Permission) 
 		return func(ctx echo.Context) error {
 			userID, _ := tools.ExtractUserID(ctx)
 			hasPermission := HavePermissions(db, userID, permission)
-
-			// Log information
-			if hasPermission {
-				fmt.Printf("User with ID %d has the required permission: %s\n", userID, permission)
-			}
 
 			ctx.Set("permissable", hasPermission)
 			return next(ctx)

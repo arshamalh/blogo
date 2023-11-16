@@ -1,3 +1,5 @@
+- [x] Use Zap for logging
+- [ ] Use swaggo for better and more clear API documentation
 - [ ] Remove `gorm` and use `bun` instead
 - [ ] Add Edit post route, including editing posts categories, id of editor should be recorded if that's not the original author.
 - [ ] Add comments, 

@@ -12,18 +12,6 @@ import (
 	"go.uber.org/zap"
 )
 
-var Gl *zap.Logger
-
-func InitializeLogger() {
-	cfg := zap.NewProductionConfig()
-	logger, err := cfg.Build()
-	if err != nil {
-		panic("Failed to initialize logger: " + err.Error())
-	}
-	defer logger.Sync()
-	Gl = logger
-}
-
 type userController struct {
 	basicAttributes
 }
@@ -79,7 +67,9 @@ func (uc *userController) UserRegister(ctx echo.Context) error {
 		LastName:  user.LastName,
 		RoleID:    3,
 	}
-	new_user.SetPassword(user.Password)
+	if err := new_user.SetPassword(user.Password); err != nil {
+		return ctx.JSON(http.StatusInternalServerError, echo.Map{"message": "cannot register you"})
+	}
 	uid, err := uc.db.CreateUser(&new_user)
 	if err != nil {
 		log.Gl.Error(err.Error())
@@ -97,7 +87,7 @@ func (uc *userController) UserLogin(ctx echo.Context) error {
 	}
 
 	// Check if user exists
-	dbUser, err := uc.db.GetUserByUsername(ctx.FormValue("username"))
+	dbUser, err := uc.db.GetUserByUsername(user.Username)
 	if err != nil {
 		log.Gl.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, echo.Map{"message": "error getting user"})
@@ -105,7 +95,6 @@ func (uc *userController) UserLogin(ctx echo.Context) error {
 
 	// Check if password is correct
 	if dbUser.ComparePasswords(user.Password) != nil {
-
 		return ctx.JSON(http.StatusUnauthorized, echo.Map{"message": "wrong password"})
 	}
 
@@ -137,8 +126,5 @@ func (uc *userController) UserLogout(ctx echo.Context) error {
 }
 
 func (uc *userController) UserID(ctx echo.Context) error {
-
-	value := ctx.Get("user_id")
-	log.Gl.Info("User ID retrieved", zap.Any("user_id", value))
-	return ctx.JSON(200, echo.Map{"user_id": value})
+	return ctx.JSON(http.StatusOK, echo.Map{"user_id": ctx.Get("user_id")})
 }
