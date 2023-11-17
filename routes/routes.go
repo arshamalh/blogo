@@ -8,6 +8,7 @@ import (
 	"github.com/arshamalh/blogo/middlewares"
 	"go.uber.org/zap"
 
+	_ "github.com/arshamalh/blogo/docs"
 	"github.com/arshamalh/blogo/models/permissions"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -17,7 +18,7 @@ import (
 func InitializeRoutes(router *echo.Echo, db databases.Database, logger *zap.Logger) {
 	// Basic configurations and middleware.
 	router.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"http://localhost:3000"},
+		AllowOrigins: []string{"*"},
 	}))
 
 	router.Use(middlewares.ZapLogger(logger))

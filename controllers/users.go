@@ -1,3 +1,4 @@
+// user.go
 package controllers
 
 import (
@@ -12,23 +13,12 @@ import (
 	"go.uber.org/zap"
 )
 
+// userController handles HTTP requests related to user management
 type userController struct {
 	basicAttributes
 }
 
-type UserRegisterRequest struct {
-	Username  string `json:"username" form:"username" binding:"required"`
-	Password  string `json:"password" form:"password" binding:"required"`
-	Email     string `json:"email" form:"email" binding:"required"`
-	FirstName string `json:"first_name" form:"first_name"`
-	LastName  string `json:"last_name" form:"last_name"`
-}
-
-type UserLoginRequest struct {
-	Username string `json:"username" form:"username" binding:"required"`
-	Password string `json:"password" form:"password" binding:"required"`
-}
-
+// NewUserController creates a new instance of userController.
 func NewUserController(db databases.Database, logger *zap.Logger) *userController {
 	return &userController{
 		basicAttributes: basicAttributes{
@@ -36,6 +26,23 @@ func NewUserController(db databases.Database, logger *zap.Logger) *userControlle
 			logger: logger,
 		},
 	}
+}
+
+// UserRegisterRequest represents the request format for user registration.
+// swagger:parameters UserRegister
+type UserRegisterRequest struct {
+	Username  string `form:"username" json:"username" binding:"required"`
+	Password  string `form:"password" json:"password" binding:"required"`
+	Email     string `form:"email" json:"email" binding:"required"`
+	FirstName string `form:"first_name" json:"first_name"`
+	LastName  string `form:"last_name" json:"last_name"`
+}
+
+// UserLoginRequest represents the request format for user login.
+// swagger:parameters UserLogin
+type UserLoginRequest struct {
+	Username string `form:"username" json:"username" binding:"required"`
+	Password string `form:"password" json:"password" binding:"required"`
 }
 
 // ShowAccount   godoc
@@ -79,6 +86,14 @@ func (uc *userController) UserRegister(ctx echo.Context) error {
 	return ctx.JSON(http.StatusCreated, echo.Map{"message": "user created", "uid": uid})
 }
 
+// CheckUsername checks the availability of a username.
+// swagger:route GET /users/check-username CheckUsername
+// Checks the availability of a username.
+// responses:
+//
+//	200: map[string]interface{} "Username available"
+//	400: map[string]interface{} "Invalid request"
+//	409: map[string]interface{} "Username already taken"
 func (uc *userController) UserLogin(ctx echo.Context) error {
 	// Decode the body of request
 	var user UserLoginRequest
@@ -116,6 +131,12 @@ func (uc *userController) CheckUsername(ctx echo.Context) error {
 	}
 }
 
+// UserLogout logs out a user.
+// swagger:route POST /users/logout UserLogout
+// Logs out a user.
+// responses:
+//
+//	200: map[string]interface{} "Logout success"
 func (uc *userController) UserLogout(ctx echo.Context) error {
 	ctx.SetCookie(&http.Cookie{
 		Name:    "access_token",
@@ -125,6 +146,12 @@ func (uc *userController) UserLogout(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, echo.Map{"message": "logout success"})
 }
 
+// UserID retrieves the ID of the logged-in user.
+// swagger:route GET /users/user-id UserID
+// Retrieves the ID of the logged-in user.
+// responses:
+//
+//	200: map[string]interface{} "User ID retrieved"
 func (uc *userController) UserID(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, echo.Map{"user_id": ctx.Get("user_id")})
 }

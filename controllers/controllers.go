@@ -1,3 +1,4 @@
+// controllers.go
 package controllers
 
 import (
@@ -5,6 +6,7 @@ import (
 	"go.uber.org/zap"
 )
 
+// basicAttributes defines the basic attributes shared by other controllers.
 type basicAttributes struct {
 	db     databases.Database
 	logger *zap.Logger
