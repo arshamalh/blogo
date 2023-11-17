@@ -1,0 +1,173 @@
+basePath: /api/v1
+definitions:
+  models.Category:
+    type: object
+  models.Comment:
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: arshamalh.github.io/
+  description: A simple blog for educational purposes
+  title: Blogo API server
+  version: "1.0"
+paths:
+  /categories:
+    get:
+      description: Get a list of all categories
+      operationId: get-all-categories
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Category'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get all categories
+    post:
+      consumes:
+      - application/json
+      description: Create a new category
+      operationId: create-category
+      parameters:
+      - description: Category object
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/models.Category'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new category
+  /categories/{name}:
+    get:
+      description: Get category details by name
+      operationId: get-category
+      parameters:
+      - description: Category Name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Category'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get a category by name
+  /comments:
+    post:
+      consumes:
+      - application/json
+      description: Create a new comment
+      operationId: create-comment
+      parameters:
+      - description: Comment object
+        in: body
+        name: comment
+        required: true
+        schema:
+          $ref: '#/definitions/models.Comment'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new comment
+  /users/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a user
+      parameters:
+      - description: Username
+        in: body
+        name: Username
+        required: true
+        schema:
+          type: string
+      - description: Password
+        in: body
+        name: Password
+        required: true
+        schema:
+          type: string
+      - description: Email
+        in: body
+        name: Email
+        required: true
+        schema:
+          type: string
+      - description: FirstName
+        in: body
+        name: FirstName
+        schema:
+          type: string
+      - description: LastName
+        in: body
+        name: LastName
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Register a user
+swagger: "2.0"

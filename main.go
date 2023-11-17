@@ -15,8 +15,8 @@ import (
 // @title Blogo API server
 // @version 1.0
 // @description A simple blog for educational purposes
-
-// @host localhost:80
+// @contact.email arshamalh.github.io/
+// @host localhost:8080
 // @BasePath /api/v1
 func main() {
 	// Load environment variables
@@ -40,7 +40,7 @@ func main() {
 	routes.InitializeRoutes(router, db, logger)
 	router.StaticFS("/", os.DirFS("./ui"))
 
-	if err := router.Start(":80"); err != nil {
+	if err := router.Start(":8080"); err != nil {
 		log.Fatal(err)
 	}
 }

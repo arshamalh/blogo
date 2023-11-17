@@ -1,3 +1,4 @@
+// roles.go
 package controllers
 
 import (
@@ -10,10 +11,12 @@ import (
 	"go.uber.org/zap"
 )
 
+// roleController handles HTTP requests related to user roles.
 type roleController struct {
 	basicAttributes
 }
 
+// NewRoleController creates a new instance of roleController.
 func NewRoleController(db databases.Database, logger *zap.Logger) *roleController {
 	return &roleController{
 		basicAttributes: basicAttributes{
@@ -23,6 +26,14 @@ func NewRoleController(db databases.Database, logger *zap.Logger) *roleControlle
 	}
 }
 
+// CreateRole creates a new user role.
+// swagger:route POST /roles CreateRole
+// Creates a new user role.
+// responses:
+//
+//	201: map[string]interface{} "Role created"
+//	400: map[string]interface{} "Invalid request"
+//	500: map[string]interface{} "Internal server error"
 func (rc *roleController) CreateRole(ctx echo.Context) error {
 	var role models.Role
 	if err := ctx.Bind(&role); err != nil {
@@ -34,6 +45,14 @@ func (rc *roleController) CreateRole(ctx echo.Context) error {
 	return ctx.JSON(http.StatusCreated, echo.Map{"role": role})
 }
 
+// UpdateRole updates an existing user role.
+// swagger:route PUT /roles UpdateRole
+// Updates an existing user role.
+// responses:
+//
+//	200: map[string]interface{} "Role updated"
+//	400: map[string]interface{} "Invalid request"
+//	500: map[string]interface{} "Internal server error"
 func (rc *roleController) UpdateRole(ctx echo.Context) error {
 	var role models.Role
 	if err := ctx.Bind(&role); err != nil {
@@ -47,6 +66,20 @@ func (rc *roleController) UpdateRole(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, echo.Map{"role": role})
 }
 
+// DeleteRole deletes an existing user role.
+// swagger:route DELETE /roles/{id} DeleteRole
+// Deletes an existing user role.
+// parameters:
+//   - name: id
+//     in: path
+//     description: The ID of the role to delete.
+//     required: true
+//     type: integer
+//
+// responses:
+//
+//	200: map[string]interface{} "Role deleted"
+//	500: map[string]interface{} "Internal server error"
 func (rc *roleController) DeleteRole(ctx echo.Context) error {
 	id, _ := strconv.ParseUint(ctx.Param("id"), 10, 64)
 	if err := rc.db.DeleteRole(uint(id)); err != nil {
@@ -56,6 +89,21 @@ func (rc *roleController) DeleteRole(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, echo.Map{"message": "Role deleted"})
 }
 
+// GetRole retrieves a user role by ID.
+// swagger:route GET /roles/{id} GetRole
+// Retrieves a user role by ID.
+// parameters:
+//   - name: id
+//     in: path
+//     description: The ID of the role to retrieve.
+//     required: true
+//     type: integer
+//
+// responses:
+//
+//	200: map[string]interface{} "Role retrieved"
+//	404: map[string]interface{} "Role not found"
+//	500: map[string]interface{} "Internal server error"
 func (rc *roleController) GetRole(ctx echo.Context) error {
 	id, _ := strconv.ParseUint(ctx.Param("id"), 10, 64)
 	role, err := rc.db.GetRole(uint(id))
@@ -66,6 +114,13 @@ func (rc *roleController) GetRole(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, echo.Map{"role": role})
 }
 
+// GetRoles retrieves all user roles.
+// swagger:route GET /roles GetRoles
+// Retrieves all user roles.
+// responses:
+//
+//	200: map[string]interface{} "Roles retrieved"
+//	500: map[string]interface{} "Internal server error"
 func (rc *roleController) GetRoles(ctx echo.Context) error {
 	roles, err := rc.db.GetRoles()
 	if err != nil {

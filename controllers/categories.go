@@ -1,3 +1,4 @@
+// category_controller.go
 package controllers
 
 import (
@@ -22,6 +23,15 @@ func NewCategoryController(db databases.Database, logger *zap.Logger) *categoryC
 	}
 }
 
+// @Summary Create a new category
+// @Description Create a new category
+// @ID create-category
+// @Accept json
+// @Produce json
+// @Param category body models.Category true "Category object"
+// @Success 201 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Router /categories [post]
 func (cc *categoryController) CreateCategory(ctx echo.Context) error {
 	var category models.Category
 	if err := ctx.Bind(&category); err != nil {
@@ -39,6 +49,14 @@ func (cc *categoryController) CreateCategory(ctx echo.Context) error {
 	}
 }
 
+// @Summary Get a category by name
+// @Description Get category details by name
+// @ID get-category
+// @Param name path string true "Category Name"
+// @Produce json
+// @Success 200 {object} models.Category
+// @Failure 404 {object} map[string]any
+// @Router /categories/{name} [get]
 func (cc *categoryController) GetCategory(ctx echo.Context) error {
 	category, err := cc.db.GetCategory(ctx.Param("name"))
 	if err != nil || category.ID == 0 {
@@ -48,6 +66,13 @@ func (cc *categoryController) GetCategory(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, category)
 }
 
+// @Summary Get all categories
+// @Description Get a list of all categories
+// @ID get-all-categories
+// @Produce json
+// @Success 200 {array} models.Category
+// @Failure 404 {object} map[string]any
+// @Router /categories [get]
 func (cc *categoryController) GetCategories(ctx echo.Context) error {
 	categories, err := cc.db.GetCategories()
 	if err != nil {
