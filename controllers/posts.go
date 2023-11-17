@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/arshamalh/blogo/databases"
+	"github.com/arshamalh/blogo/log"
 	"github.com/arshamalh/blogo/models"
 	"github.com/arshamalh/blogo/tools"
 	"github.com/labstack/echo/v4"
@@ -47,30 +48,33 @@ func NewPostController(db databases.Database, logger *zap.Logger) *postControlle
 //	500: map[string]interface{} "Internal server error"
 func (pc *postController) CreatePost(ctx echo.Context) error {
 	var post PostRequest
-	user_id, _ := tools.ExtractUserID(ctx)
+	userID, _ := tools.ExtractUserID(ctx)
 	if err := ctx.Bind(&post); err != nil {
+		log.Gl.Error(err.Error())
 		return ctx.JSON(500, echo.Map{"error": err.Error()})
 	}
 
-	catgs := []models.Category{}
-	for _, catg := range post.Categories {
-		catgs = append(catgs, models.Category{Name: catg})
+	categories := []models.Category{}
+	for _, category := range post.Categories {
+		categories = append(categories, models.Category{Name: category})
 	}
 
-	new_post := models.Post{
+	newPost := models.Post{
 		Title:      post.Title,
 		Content:    post.Content,
-		AuthorID:   user_id,
-		Categories: catgs,
+		AuthorID:   userID,
+		Categories: categories,
 	}
-	post_id, err := pc.db.CreatePost(&new_post)
+	postID, err := pc.db.CreatePost(&newPost)
 	if err != nil {
-		pc.logger.Error(err.Error())
+		log.Gl.Error(err.Error())
 		return ctx.JSON(http.StatusConflict, echo.Map{"message": "cannot make the post"})
 	}
+
+	log.Gl.Info("Post created", zap.Any("post_id", postID))
 	return ctx.JSON(http.StatusCreated, echo.Map{
 		"message": "Post created successfully",
-		"post_id": post_id,
+		"post_id": postID,
 	})
 }
 
@@ -90,24 +94,24 @@ func (pc *postController) CreatePost(ctx echo.Context) error {
 //	401: map[string]interface{} "Unauthorized"
 //	500: map[string]interface{} "Internal server error"
 func (pc *postController) DeletePost(ctx echo.Context) error {
-	user_id, _ := tools.ExtractUserID(ctx)
-	post_id, _ := strconv.ParseUint(ctx.Param("id"), 10, 64)
+	userID, _ := tools.ExtractUserID(ctx)
+	postID, _ := strconv.ParseUint(ctx.Param("id"), 10, 64)
 
-	// If user doesn't have the permission to delete posts, check if it's its own post.
+	// If the user doesn't have the permission to delete posts, check if it's their own post.
 	if !tools.ExtractPermissable(ctx) {
-		post, _ := pc.db.GetPost(uint(post_id))
-		if post.AuthorID != user_id {
+		post, _ := pc.db.GetPost(uint(postID))
+		if post.AuthorID != userID {
 			return ctx.JSON(http.StatusUnauthorized, echo.Map{
 				"message": "you don't have enough permissions",
 			})
 		}
 	}
 
-	// Delete post
-	if err := pc.db.DeletePost(uint(post_id)); err != nil {
+	if err := pc.db.DeletePost(uint(postID)); err != nil {
+		log.Gl.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, echo.Map{"error": err.Error()})
-
 	}
+	log.Gl.Info("Post deleted", zap.Uint("post_id", uint(postID)))
 	return ctx.JSON(http.StatusOK, echo.Map{"message": "Post deleted"})
 }
 
@@ -129,28 +133,30 @@ func (pc *postController) DeletePost(ctx echo.Context) error {
 func (pc *postController) UpdatePost(ctx echo.Context) error {
 	var post PostRequest
 	if err := ctx.Bind(&post); err != nil {
+		log.Gl.Error(err.Error())
 		return ctx.JSON(http.StatusBadRequest, echo.Map{"status": "invalid request"})
-
 	}
 
-	// Make new updated post
-	catgs := []models.Category{}
-	for _, catg := range post.Categories {
-		catgs = append(catgs, models.Category{Name: catg})
+	// Make a new updated post
+	categories := []models.Category{}
+	for _, category := range post.Categories {
+		categories = append(categories, models.Category{Name: category})
 	}
-	new_post := models.Post{
+	newPost := models.Post{
 		Title:      post.Title,
 		Content:    post.Content,
-		Categories: catgs,
+		Categories: categories,
 	}
-	post_id, _ := strconv.ParseUint(ctx.Param("id"), 10, 64)
-	new_post.ID = uint(post_id)
+	postID, _ := strconv.ParseUint(ctx.Param("id"), 10, 64)
+	newPost.ID = uint(postID)
 
 	// Update post
-	if err := pc.db.UpdatePost(&new_post); err != nil {
+	if err := pc.db.UpdatePost(&newPost); err != nil {
+		log.Gl.Error(err.Error())
 		return ctx.JSON(500, echo.Map{"error": err.Error()})
 	}
-	return ctx.JSON(200, echo.Map{"post": new_post})
+	log.Gl.Info("Post updated", zap.Uint("post_id", uint(postID)))
+	return ctx.JSON(200, echo.Map{"post": newPost})
 }
 
 // GetPost retrieves a blog post by ID.
@@ -169,11 +175,10 @@ func (pc *postController) UpdatePost(ctx echo.Context) error {
 //	404: map[string]interface{} "Post not found"
 //	500: map[string]interface{} "Internal server error"
 func (pc *postController) GetPost(ctx echo.Context) error {
-	post_id, _ := strconv.ParseUint(ctx.Param("id"), 10, 64)
-	post, _ := pc.db.GetPost(uint(post_id))
-	return ctx.JSON(200, echo.Map{
-		"post": post,
-	})
+	postID, _ := strconv.ParseUint(ctx.Param("id"), 10, 64)
+	post, _ := pc.db.GetPost(uint(postID))
+	log.Gl.Info("Post retrieved", zap.Uint("post_id", uint(postID)))
+	return ctx.JSON(200, echo.Map{"post": post})
 }
 
 // GetPosts retrieves all blog posts.
@@ -186,7 +191,5 @@ func (pc *postController) GetPost(ctx echo.Context) error {
 //	500: map[string]interface{} "Internal server error"
 func (pc *postController) GetPosts(ctx echo.Context) error {
 	posts, _ := pc.db.GetPosts()
-	return ctx.JSON(200, echo.Map{
-		"posts": posts,
-	})
+	return ctx.JSON(200, echo.Map{"posts": posts})
 }

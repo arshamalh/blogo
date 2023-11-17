@@ -10,4 +10,5 @@ import (
 type basicAttributes struct {
 	db     databases.Database
 	logger *zap.Logger
+	Gl     *zap.Logger
 }

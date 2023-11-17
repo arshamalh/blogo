@@ -13,24 +13,24 @@ type gormdb struct {
 	db *gorm.DB
 }
 
-func Connect(dsn string) *gormdb {
+func Connect(dsn string) (*gormdb, error) {
 	DB, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		SkipDefaultTransaction: true,
 	})
 	if err != nil {
-		panic("Failed to connect to database")
+		return nil, err
 	}
 	fmt.Println("Database connection successfully opened")
 
 	// Auto migration
 	err = DB.AutoMigrate(models.User{}, models.Post{}, models.Category{}, models.Role{}, models.Comment{})
 	if err != nil {
-		panic("Failed to migrate the database")
+		return nil, err
 	}
 	gdb := &gormdb{db: DB}
 	gdb.AddBasicRoles()
 	fmt.Println("Database Migrated")
-	return gdb
+	return gdb, nil
 }
 
 // Add some basic roles manually

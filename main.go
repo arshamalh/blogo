@@ -1,11 +1,10 @@
 package main
 
 import (
-	"fmt"
-	"log"
 	"os"
 
 	database "github.com/arshamalh/blogo/databases/gorm"
+	"github.com/arshamalh/blogo/log"
 	"github.com/arshamalh/blogo/routes"
 	"github.com/arshamalh/blogo/tools"
 	"github.com/joho/godotenv"
@@ -20,11 +19,11 @@ import (
 // @BasePath /api/v1
 func main() {
 	// Load environment variables
-	if err := godotenv.Load(); err != nil {
-		fmt.Println("no environment variables", err)
-	}
+	logger := log.InitializeLogger()
 
-	logger := tools.InitializeLogger()
+	if err := godotenv.Load(); err != nil {
+		logger.Error(err.Error())
+	}
 
 	// Database
 	dsn := tools.DBConfig{
@@ -33,7 +32,11 @@ func main() {
 		DBName:   os.Getenv("DB_NAME"),
 		Host:     os.Getenv("HOST"),
 	}
-	db := database.Connect(dsn.String())
+	db, err := database.Connect(dsn.String())
+	if err != nil {
+		log.Gl.Error(err.Error())
+		return
+	}
 
 	// Router
 	router := echo.New()
@@ -41,6 +44,6 @@ func main() {
 	router.StaticFS("/", os.DirFS("./ui"))
 
 	if err := router.Start(":8080"); err != nil {
-		log.Fatal(err)
+		log.Gl.Error(err.Error())
 	}
 }

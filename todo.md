@@ -1,9 +1,13 @@
-- [ ] Use Zap for logging
+- [x] Use Zap for logging
 - [ ] Use swaggo for better and more clear API documentation
 - [ ] Remove `gorm` and use `bun` instead
+- [ ] Use cobra to make it a cli application
 - [ ] Add Edit post route, including editing posts categories, id of editor should be recorded if that's not the original author.
 - [ ] Add comments, 
 - [ ] Add comments related permissions such as deleting or verifying
 - [ ] Permissions mechanism is complex, and compression is not a good way.
 - [ ] Add capability to include media, hashtags and others.
 - [ ] Write Tests.
+- [ ] Remove basicAttributes from controllers
+- [ ] Make it a cli tool
+- [ ] Fix docker compose (simplify)
