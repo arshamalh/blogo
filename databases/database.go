@@ -6,6 +6,7 @@ import (
 )
 
 type Database interface {
+
 	// Users
 	CheckUserExists(username string) bool
 	CreateUser(user *models.User) (uint, error)
