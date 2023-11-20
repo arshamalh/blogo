@@ -21,13 +21,13 @@ func main() {
 	logger := log.InitializeLogger()
 
 	if err := godotenv.Load(); err != nil {
-		logger.Error(err.Error())
+		log.Gl.Error(err.Error())
 	}
 
 	// Database
 	db, err := databases.ConnectDB()
 	if err != nil {
-		logger.Error(err.Error())
+		log.Gl.Error(err.Error())
 		return
 	}
 

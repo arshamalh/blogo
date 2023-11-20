@@ -2,8 +2,8 @@ package database
 
 import (
 	"database/sql"
-	"fmt"
 
+	"github.com/arshamalh/blogo/log"
 	"github.com/arshamalh/blogo/models"
 	"github.com/arshamalh/blogo/models/permissions"
 	"github.com/uptrace/bun"
@@ -25,7 +25,7 @@ func Connect(dsn string) (*bundb, error) {
 		return nil, err
 	}
 
-	fmt.Println("Database connection successfully opened")
+	log.Gl.Info("Database connection successfully opened")
 
 	return &bundb{db: db}, nil
 }

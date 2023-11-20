@@ -2,7 +2,6 @@
 package databases
 
 import (
-	"fmt"
 	"os"
 
 	database "github.com/arshamalh/blogo/databases/bun"
@@ -43,7 +42,7 @@ func ConnectDB() (Database, error) {
 		db = gormDB
 	}
 
-	fmt.Println("Database connection successfully opened")
+	log.Gl.Info("Database connection successfully opened")
 
 	return db, nil
 }
