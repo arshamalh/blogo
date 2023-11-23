@@ -1,10 +1,11 @@
 package models
 
-import "gorm.io/gorm"
+import "github.com/uptrace/bun"
 
 type Category struct {
-	gorm.Model
-	Name        string `json:"name" gorm:"uniqueIndex"`
-	Description string `json:"description"`
-	Posts       []Post `json:"posts" gorm:"many2many:post_categories;"`
+	ID            uint `bun:"id"`
+	bun.BaseModel `bun:"category"`
+	Name          string  `json:"name" bun:"unique"`
+	Description   string  `json:"description"`
+	Posts         []*Post `json:"posts" bun:"many2many:post_categories;join:post_category"`
 }

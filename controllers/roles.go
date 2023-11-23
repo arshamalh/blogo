@@ -9,7 +9,9 @@ import (
 	"github.com/arshamalh/blogo/log"
 	"github.com/arshamalh/blogo/models"
 	"github.com/labstack/echo/v4"
+	"github.com/uptrace/bun"
 	"go.uber.org/zap"
+	"golang.org/x/net/context"
 )
 
 // roleController handles HTTP requests related to user roles.
@@ -23,6 +25,7 @@ func NewRoleController(db databases.Database, logger *zap.Logger) *roleControlle
 		basicAttributes: basicAttributes{
 			db:     db,
 			logger: logger,
+			Gl:     logger,
 		},
 	}
 }
@@ -41,7 +44,7 @@ func (rc *roleController) CreateRole(ctx echo.Context) error {
 		log.Gl.Error(err.Error())
 		return ctx.JSON(http.StatusBadRequest, echo.Map{"status": "invalid request"})
 	}
-	if err := rc.db.CreateRole(&role); err != nil {
+	if _, err := rc.db.Insert(&role).Exec(context.Background()); err != nil {
 		log.Gl.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, echo.Map{"error": err.Error()})
 	}
@@ -63,7 +66,7 @@ func (rc *roleController) UpdateRole(ctx echo.Context) error {
 		log.Gl.Error(err.Error())
 		return ctx.JSON(http.StatusBadRequest, echo.Map{"status": "invalid request"})
 	}
-	if err := rc.db.UpdateRole(&role); err != nil {
+	if _, err := rc.db.NewUpdate().Model(&role).WherePK().Exec(context.Background()); err != nil {
 		log.Gl.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, echo.Map{"error": err.Error()})
 	}
@@ -87,7 +90,7 @@ func (rc *roleController) UpdateRole(ctx echo.Context) error {
 //	500: map[string]interface{} "Internal server error"
 func (rc *roleController) DeleteRole(ctx echo.Context) error {
 	id, _ := strconv.ParseUint(ctx.Param("id"), 10, 64)
-	if err := rc.db.DeleteRole(uint(id)); err != nil {
+	if _, err := rc.db.NewDelete().Model((*models.Role)(nil)).Where(bun.Where("id = ?", id)).Exec(context.Background()); err != nil {
 		log.Gl.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, echo.Map{"error": err.Error()})
 	}
@@ -112,8 +115,8 @@ func (rc *roleController) DeleteRole(ctx echo.Context) error {
 //	500: map[string]interface{} "Internal server error"
 func (rc *roleController) GetRole(ctx echo.Context) error {
 	id, _ := strconv.ParseUint(ctx.Param("id"), 10, 64)
-	role, err := rc.db.GetRole(uint(id))
-	if err != nil {
+	var role models.Role
+	if err := rc.db.NewSelect().Model(&role).Where(bun.Where("id = ?", id)).Scan(context.Background()); err != nil {
 		log.Gl.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, echo.Map{"error": err.Error()})
 	}
@@ -129,8 +132,8 @@ func (rc *roleController) GetRole(ctx echo.Context) error {
 //	200: map[string]interface{} "Roles retrieved"
 //	500: map[string]interface{} "Internal server error"
 func (rc *roleController) GetRoles(ctx echo.Context) error {
-	roles, err := rc.db.GetRoles()
-	if err != nil {
+	var roles []models.Role
+	if err := rc.db.NewSelect().Model(&roles).Scan(context.Background()); err != nil {
 		log.Gl.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, echo.Map{"error": err.Error()})
 	}

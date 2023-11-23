@@ -1,5 +1,7 @@
-// category_controller.go
+// categories.go
 package controllers
+
+// تمام فایل های کنترلرز رو از سورس بگیر و با توجه به سایر پوشه ها و فایل ها از نو بنویس
 
 import (
 	"net/http"
@@ -41,12 +43,12 @@ func (cc *categoryController) CreateCategory(ctx echo.Context) error {
 	} else if cc.db.CheckCategoryExists(category.Name) {
 		return ctx.JSON(http.StatusConflict, echo.Map{"status": "category already exists"})
 	} else {
-		_, err := cc.db.CreateCategory(&category)
+		id, err := cc.db.CreateCategory(&category)
 		if err != nil {
 			log.Gl.Error(err.Error())
 			return ctx.JSON(http.StatusConflict, echo.Map{"status": "cannot create category"})
 		}
-		return ctx.JSON(http.StatusCreated, echo.Map{"status": "category created"})
+		return ctx.JSON(http.StatusCreated, echo.Map{"status": "category created", "id": id})
 	}
 }
 
@@ -59,7 +61,7 @@ func (cc *categoryController) CreateCategory(ctx echo.Context) error {
 // @Failure 404 {object} map[string]any
 // @Router /categories/{name} [get]
 func (cc *categoryController) GetCategory(ctx echo.Context) error {
-	category, err := cc.db.GetCategory(ctx.Param("name"))
+	category, err := cc.db.GetCategory(ctx.Param("name")).Relation("Posts").Scan(ctx.Request().Context())
 	if err != nil || category.ID == 0 {
 		return ctx.JSON(http.StatusNotFound, echo.Map{"status": "category not found"})
 	}
@@ -75,7 +77,7 @@ func (cc *categoryController) GetCategory(ctx echo.Context) error {
 // @Failure 404 {object} map[string]any
 // @Router /categories [get]
 func (cc *categoryController) GetCategories(ctx echo.Context) error {
-	categories, err := cc.db.GetCategories()
+	categories, err := cc.db.GetCategories().Scan(ctx.Request().Context())
 	if err != nil {
 		log.Gl.Error(err.Error())
 		return ctx.JSON(http.StatusNotFound, echo.Map{"status": "categories not found"})

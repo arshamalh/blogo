@@ -32,6 +32,7 @@ func NewPostController(db databases.Database, logger *zap.Logger) *postControlle
 		basicAttributes: basicAttributes{
 			db:     db,
 			logger: logger,
+			Gl:     logger,
 		},
 	}
 }
