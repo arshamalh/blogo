@@ -12,12 +12,3 @@ type basicAttributes struct {
 	logger *zap.Logger
 	Gl     *zap.Logger
 }
-
-// NewBasicAttributesController initializes basic attributes for a controller.
-func NewBasicAttributesController(db databases.Database, logger *zap.Logger) *basicAttributes {
-	return &basicAttributes{
-		db:     db,
-		logger: logger,
-		Gl:     logger,
-	}
-}

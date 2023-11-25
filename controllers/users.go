@@ -10,9 +10,7 @@ import (
 	"github.com/arshamalh/blogo/models"
 	"github.com/arshamalh/blogo/session"
 	"github.com/labstack/echo/v4"
-	"github.com/uptrace/bun"
 	"go.uber.org/zap"
-	"golang.org/x/net/context"
 )
 
 // userController handles HTTP requests related to user management
@@ -26,7 +24,6 @@ func NewUserController(db databases.Database, logger *zap.Logger) *userControlle
 		basicAttributes: basicAttributes{
 			db:     db,
 			logger: logger,
-			Gl:     logger,
 		},
 	}
 }
@@ -80,12 +77,13 @@ func (uc *userController) UserRegister(ctx echo.Context) error {
 	if err := new_user.SetPassword(user.Password); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, echo.Map{"message": "cannot register you"})
 	}
-	if _, err := uc.db.Insert(&new_user).Exec(context.Background()); err != nil {
+	uid, err := uc.db.CreateUser(&new_user)
+	if err != nil {
 		log.Gl.Error(err.Error())
 		return ctx.JSON(http.StatusConflict, echo.Map{"message": "Failed to create user"})
 	}
 	log.Gl.Info("User created", zap.String("username", new_user.Username))
-	return ctx.JSON(http.StatusCreated, echo.Map{"message": "user created", "uid": new_user.ID})
+	return ctx.JSON(http.StatusCreated, echo.Map{"message": "user created", "uid": uid})
 }
 
 // CheckUsername checks the availability of a username.
@@ -104,8 +102,8 @@ func (uc *userController) UserLogin(ctx echo.Context) error {
 	}
 
 	// Check if user exists
-	var dbUser models.User
-	if err := uc.db.NewSelect().Model(&dbUser).Where(bun.Where("username = ?", user.Username)).Scan(context.Background()); err != nil {
+	dbUser, err := uc.db.GetUserByUsername(user.Username)
+	if err != nil {
 		log.Gl.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, echo.Map{"message": "error getting user"})
 	}

@@ -57,7 +57,7 @@ require (
 	github.com/labstack/echo/v4 v4.10.2
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/uptrace/bun v1.1.16
-	golang.org/x/net v0.18.0
+	golang.org/x/net v0.18.0 // indirect
 	golang.org/x/sys v0.14.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 )

@@ -5,6 +5,7 @@ import (
 )
 
 type Comment struct {
+	ID            uint `bun:"id"`
 	bun.BaseModel `bun:"comment"`
 	User          *User  `json:"user" bun:"rel:belongs-to"`
 	UserID        uint   `json:"-" bun:"notnull"`

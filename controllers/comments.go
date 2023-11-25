@@ -18,7 +18,7 @@ type commentController struct {
 }
 
 // NewCommentController creates a new instance of commentController.
-func NewCommentController(db databases.Database) *commentController {
+func NewCommentController(db databases.Database, logger *zap.Logger) *commentController {
 	return &commentController{
 		db: db,
 	}

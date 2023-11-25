@@ -54,7 +54,7 @@ func InitializeRoutes(router *echo.Echo, db databases.Database, logger *zap.Logg
 	}
 
 	commentRoutes := router.Group("api/v1/comments")
-	commentController := controllers.NewCommentController(db)
+	commentController := controllers.NewCommentController(db, logger)
 	{
 		commentRoutes.POST("/", commentController.CreateComment, middlewares.RequireLogin)
 	}

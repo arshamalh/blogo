@@ -32,7 +32,6 @@ func NewPostController(db databases.Database, logger *zap.Logger) *postControlle
 		basicAttributes: basicAttributes{
 			db:     db,
 			logger: logger,
-			Gl:     logger,
 		},
 	}
 }
@@ -55,9 +54,9 @@ func (pc *postController) CreatePost(ctx echo.Context) error {
 		return ctx.JSON(500, echo.Map{"error": err.Error()})
 	}
 
-	categories := []models.Category{}
+	var categories []*models.Category
 	for _, category := range post.Categories {
-		categories = append(categories, models.Category{Name: category})
+		categories = append(categories, &models.Category{Name: category})
 	}
 
 	newPost := models.Post{
@@ -66,6 +65,7 @@ func (pc *postController) CreatePost(ctx echo.Context) error {
 		AuthorID:   userID,
 		Categories: categories,
 	}
+
 	postID, err := pc.db.CreatePost(&newPost)
 	if err != nil {
 		log.Gl.Error(err.Error())
@@ -139,15 +139,17 @@ func (pc *postController) UpdatePost(ctx echo.Context) error {
 	}
 
 	// Make a new updated post
-	categories := []models.Category{}
+	var categories []*models.Category
 	for _, category := range post.Categories {
-		categories = append(categories, models.Category{Name: category})
+		categories = append(categories, &models.Category{Name: category})
 	}
+
 	newPost := models.Post{
 		Title:      post.Title,
 		Content:    post.Content,
 		Categories: categories,
 	}
+
 	postID, _ := strconv.ParseUint(ctx.Param("id"), 10, 64)
 	newPost.ID = uint(postID)
 
