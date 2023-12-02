@@ -1,13 +1,16 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"github.com/uptrace/bun"
+)
 
 type Post struct {
-	gorm.Model
-	Title      string     `json:"title"`
-	Content    string     `json:"content"`
-	AuthorID   uint       `json:"author_id"`
-	Author     User       `json:"author"`
-	Comments   []Comment  `json:"comments"`
-	Categories []Category `json:"categories" gorm:"many2many:post_categories;"`
+	ID            uint `bun:"id"`
+	bun.BaseModel `bun:"post"`
+	Title         string      `json:"title"`
+	Content       string      `json:"content"`
+	AuthorID      uint        `json:"author_id"`
+	Author        *User       `json:"author" bun:"rel:belongs-to"`
+	Comments      []*Comment  `json:"comments" bun:"rel:has-many"`
+	Categories    []*Category `json:"categories" bun:"many2many:post_categories;join:post_category"`
 }

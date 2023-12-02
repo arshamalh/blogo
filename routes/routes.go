@@ -31,51 +31,51 @@ func InitializeRoutes(router *echo.Echo, db databases.Database, logger *zap.Logg
 
 	/// ** Routes
 
-	user_routes := router.Group("/api/v1/users")
+	userRoutes := router.Group("/api/v1/users")
 	uc := controllers.NewUserController(db, logger)
 	{
-		user_routes.POST("/register", uc.UserRegister)
-		user_routes.POST("/login", uc.UserLogin)
-		user_routes.POST("/logout", uc.UserLogout, middlewares.RequireLogin)
-		user_routes.GET("/check_username", uc.CheckUsername)
-		user_routes.GET("/id", uc.UserID, middlewares.RequireLogin)
+		userRoutes.POST("/register", uc.UserRegister)
+		userRoutes.POST("/login", uc.UserLogin)
+		userRoutes.POST("/logout", uc.UserLogout, middlewares.RequireLogin)
+		userRoutes.GET("/check_username", uc.CheckUsername)
+		userRoutes.GET("/id", uc.UserID, middlewares.RequireLogin)
 		// Get & Update Profile and more
-		// user_routes.GET("/info/:id", controllers.UserInfo)
+		// userRoutes.GET("/info/:id", controllers.UserInfo)
 	}
 
-	post_routes := router.Group("api/v1/posts")
+	postRoutes := router.Group("api/v1/posts")
 	pc := controllers.NewPostController(db, logger)
 	{
-		post_routes.POST("/", pc.CreatePost, middlewares.RequireLogin, middlewares.CheckPermissions(db, permissions.CreatePost))
-		post_routes.GET("/:id", pc.GetPost)
-		post_routes.GET("/", pc.GetPosts)
-		post_routes.PATCH("/:id", pc.UpdatePost, middlewares.RequireLogin, middlewares.CheckPermissions(db, permissions.EditPost))
-		post_routes.DELETE("/:id", pc.DeletePost, middlewares.RequireLogin, middlewares.CheckPermissions(db, permissions.DeletePost))
+		postRoutes.POST("/", pc.CreatePost, middlewares.RequireLogin, middlewares.CheckPermissions(db, permissions.CreatePost))
+		postRoutes.GET("/:id", pc.GetPost)
+		postRoutes.GET("/", pc.GetPosts)
+		postRoutes.PATCH("/:id", pc.UpdatePost, middlewares.RequireLogin, middlewares.CheckPermissions(db, permissions.EditPost))
+		postRoutes.DELETE("/:id", pc.DeletePost, middlewares.RequireLogin, middlewares.CheckPermissions(db, permissions.DeletePost))
 	}
 
-	comment_routes := router.Group("api/v1/comments")
-	comment_controller := controllers.NewCommentController(db)
+	commentRoutes := router.Group("api/v1/comments")
+	commentController := controllers.NewCommentController(db, logger)
 	{
-		comment_routes.POST("/", comment_controller.CreateComment, middlewares.RequireLogin)
+		commentRoutes.POST("/", commentController.CreateComment, middlewares.RequireLogin)
 	}
 
-	category_routes := router.Group("api/v1/categories")
+	categoryRoutes := router.Group("api/v1/categories")
 	cc := controllers.NewCategoryController(db, logger)
 	{
-		category_routes.POST("/", cc.CreateCategory, middlewares.RequireLogin, middlewares.CheckPermissions(db, permissions.CreateCategory))
-		category_routes.GET("/:id", cc.GetCategory)
-		category_routes.GET("/", cc.GetCategories)
-		// category_routes.PATCH("/:id", middlewares.RequireLogin, middlewares.CheckPermissions(db, permissions.UpdateCategory), controllers.UpdateCategory)
-		// category_routes.DELETE("/:id", middlewares.RequireLogin, middlewares.CheckPermissions(db, permissions.DeleteCategory), controllers.DeleteCategory)
+		categoryRoutes.POST("/", cc.CreateCategory, middlewares.RequireLogin, middlewares.CheckPermissions(db, permissions.CreateCategory))
+		categoryRoutes.GET("/:id", cc.GetCategory)
+		categoryRoutes.GET("/", cc.GetCategories)
+		// categoryRoutes.PATCH("/:id", middlewares.RequireLogin, middlewares.CheckPermissions(db, permissions.UpdateCategory), controllers.UpdateCategory)
+		// categoryRoutes.DELETE("/:id", middlewares.RequireLogin, middlewares.CheckPermissions(db, permissions.DeleteCategory), controllers.DeleteCategory)
 	}
 
-	role_routes := router.Group("api/v1/roles")
+	roleRoutes := router.Group("api/v1/roles")
 	rc := controllers.NewRoleController(db, logger)
 	{
-		role_routes.POST("/", rc.CreateRole, middlewares.RequireLogin, middlewares.CheckPermissions(db, permissions.CreateRole))
-		role_routes.PATCH("/", rc.UpdateRole, middlewares.RequireLogin, middlewares.CheckPermissions(db, permissions.UpdateRole))
-		role_routes.GET("/:id", rc.GetRole)
-		role_routes.GET("/", rc.GetRoles)
-		role_routes.DELETE("/:id", rc.DeleteRole, middlewares.RequireLogin, middlewares.CheckPermissions(db, permissions.DeleteRole))
+		roleRoutes.POST("/", rc.CreateRole, middlewares.RequireLogin, middlewares.CheckPermissions(db, permissions.CreateRole))
+		roleRoutes.PATCH("/", rc.UpdateRole, middlewares.RequireLogin, middlewares.CheckPermissions(db, permissions.UpdateRole))
+		roleRoutes.GET("/:id", rc.GetRole)
+		roleRoutes.GET("/", rc.GetRoles)
+		roleRoutes.DELETE("/:id", rc.DeleteRole, middlewares.RequireLogin, middlewares.CheckPermissions(db, permissions.DeleteRole))
 	}
 }

@@ -5,7 +5,12 @@ import (
 	"github.com/arshamalh/blogo/models/permissions"
 )
 
+type Migrator interface {
+	AutoMigrate(models ...interface{}) error
+}
+
 type Database interface {
+
 	// Users
 	CheckUserExists(username string) bool
 	CreateUser(user *models.User) (uint, error)
@@ -35,4 +40,6 @@ type Database interface {
 	DeleteRole(id uint) error
 	GetRole(id uint) (models.Role, error)
 	GetRoles() ([]models.Role, error)
+
+	Migrator
 }
