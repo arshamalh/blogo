@@ -37,5 +37,7 @@ func main() {
 	router.StaticFS("/", os.DirFS("./ui"))
 	if err := router.Start(":8080"); err != nil {
 		log.Gl.Error(err.Error())
+
 	}
+
 }
