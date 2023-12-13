@@ -56,7 +56,7 @@ func (cc *commentController) CreateComment(ctx echo.Context) error {
 	// Add the comment to the database
 	if err := cc.db.AddComment(&comment); err != nil {
 		log.Gl.Error(err.Error())
-		return ctx.JSON(http.StatusInternalServerError, echo.Map{"error": "unable to add comment"})
+		return ctx.JSON(http.StatusInternalServerError, echo.Map{})
 	}
 
 	// Prepare the response

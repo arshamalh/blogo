@@ -9,6 +9,7 @@ import (
 	"github.com/arshamalh/blogo/tools"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
+	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
 // @title Blogo API server
@@ -42,6 +43,9 @@ func main() {
 	router := echo.New()
 	routes.InitializeRoutes(router, db, logger)
 	router.StaticFS("/", os.DirFS("./ui"))
+
+	// Serve Swagger UI
+	router.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	if err := router.Start(":8080"); err != nil {
 		log.Gl.Error(err.Error())

@@ -6,13 +6,11 @@ import (
 	"github.com/arshamalh/blogo/controllers"
 	"github.com/arshamalh/blogo/databases"
 	"github.com/arshamalh/blogo/middlewares"
-	"go.uber.org/zap"
-
-	_ "github.com/arshamalh/blogo/docs"
 	"github.com/arshamalh/blogo/models/permissions"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	echoSwagger "github.com/swaggo/echo-swagger"
+	"go.uber.org/zap"
 )
 
 func InitializeRoutes(router *echo.Echo, db databases.Database, logger *zap.Logger) {
