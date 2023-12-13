@@ -1,10 +1,8 @@
 package models
 
-import "gorm.io/gorm"
-
 type Category struct {
-	gorm.Model
-	Name        string `json:"name" gorm:"uniqueIndex"`
-	Description string `json:"description"`
-	Posts       []Post `json:"posts" gorm:"many2many:post_categories;"`
+	ID          uint    `bun:"id"`
+	Name        string  `json:"name" bun:"unique"`
+	Description string  `json:"description"`
+	Posts       []*Post `json:"posts" bun:"many2many:post_categories;join:post_category"`
 }

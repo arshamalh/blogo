@@ -2,21 +2,22 @@ package models
 
 import (
 	"github.com/arshamalh/blogo/log"
+	"github.com/uptrace/bun"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 )
 
 type User struct {
-	gorm.Model
-	Username  string    `json:"username" gorm:"uniqueIndex"`
-	Password  []byte    `json:"-"`
-	Email     string    `json:"email"`
-	FirstName string    `json:"first_name"`
-	LastName  string    `json:"last_name"`
-	Posts     []Post    `gorm:"foreignKey:AuthorID"`
-	Comments  []Comment `gorm:"foreignKey:UserID"`
-	Role      Role      `gorm:"foreignKey:RoleID"`
-	RoleID    uint      `json:"role_id"`
+	ID            uint `bun:"id"`
+	bun.BaseModel `bun:"user"`
+	Username      string     `json:"username" bun:"unique"`
+	Password      []byte     `json:"-"`
+	Email         string     `json:"email"`
+	FirstName     string     `json:"first_name"`
+	LastName      string     `json:"last_name"`
+	Posts         []*Post    `json:"posts" bun:"rel:has-many"`
+	Comments      []*Comment `json:"comments" bun:"rel:has-many"`
+	Role          *Role      `json:"role" bun:"rel:belongs-to"`
+	RoleID        uint       `json:"role_id"`
 }
 
 func (user *User) SetPassword(password string) error {
