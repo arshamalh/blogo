@@ -16,6 +16,6 @@ type basicAttributes struct {
 // @title Blogo API server
 // @version 1.0
 // @description API for managing categories and comments in Blogo application.
-// @contact.email arshamalh.github.io/
+// @contact.email hadirezaei.etc.esfahan@gmail.com
 // @contact.url https://blogo.com/contact
 // @BasePath /api/v1
