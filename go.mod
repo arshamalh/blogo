@@ -47,8 +47,8 @@ require (
 	github.com/jackc/pgx/v4 v4.16.1 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.4 // indirect
-	github.com/labstack/echo/v4 v4.10.2
-	github.com/mattn/go-isatty v0.0.17 // indirect
+	github.com/labstack/echo/v4 v4.11.3
+	github.com/mattn/go-isatty v0.0.19 // indirect
 	golang.org/x/net v0.19.0 // indirect
 	golang.org/x/sys v0.15.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
