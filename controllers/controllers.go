@@ -12,3 +12,10 @@ type basicAttributes struct {
 	logger *zap.Logger
 	Gl     *zap.Logger
 }
+
+// @title Blogo API server
+// @version 1.0
+// @description API for managing categories and comments in Blogo application.
+// @contact.email hadirezaei.etc.esfahan@gmail.com
+// @contact.url https://blogo.com/contact
+// @BasePath /api/v1

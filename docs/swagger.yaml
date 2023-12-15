@@ -1,8 +1,24 @@
 basePath: /api/v1
 definitions:
+  controllers.PostRequest:
+    properties:
+      categories:
+        items:
+          type: string
+        type: array
+      content:
+        type: string
+      title:
+        type: string
+    required:
+    - content
+    - title
+    type: object
   models.Category:
     type: object
   models.Comment:
+    type: object
+  models.Role:
     type: object
 host: localhost:8080
 info:
@@ -117,6 +133,378 @@ paths:
             additionalProperties: true
             type: object
       summary: Create a new comment
+  /posts:
+    get:
+      description: Get all blog posts
+      operationId: get-posts
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Posts retrieved
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Posts not found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get all blog posts
+    post:
+      consumes:
+      - application/json
+      description: Create a new blog post
+      operationId: create-post
+      parameters:
+      - description: Post object
+        in: body
+        name: post
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.PostRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Post created successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Cannot make the post
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new blog post
+  /posts/{id}:
+    delete:
+      description: Delete a blog post
+      operationId: delete-post
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Post deleted
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a blog post
+    get:
+      description: Get a blog post by ID
+      operationId: get-post
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Post retrieved
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Post not found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get a blog post by ID
+    put:
+      consumes:
+      - application/json
+      description: Update a blog post
+      operationId: update-post
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Post object
+        in: body
+        name: post
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.PostRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Post updated
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a blog post
+  /roles:
+    get:
+      description: Retrieve all user roles
+      operationId: get-roles
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Roles retrieved
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Retrieve all user roles
+    post:
+      consumes:
+      - application/json
+      description: Create a new user role
+      operationId: create-role
+      parameters:
+      - description: Role object
+        in: body
+        name: role
+        required: true
+        schema:
+          $ref: '#/definitions/models.Role'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Role created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new user role
+    put:
+      consumes:
+      - application/json
+      description: Update an existing user role
+      operationId: update-role
+      parameters:
+      - description: Role object
+        in: body
+        name: role
+        required: true
+        schema:
+          $ref: '#/definitions/models.Role'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Role updated
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update an existing user role
+  /roles/{id}:
+    delete:
+      description: Delete an existing user role
+      operationId: delete-role
+      parameters:
+      - description: Role ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Role deleted
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete an existing user role
+    get:
+      description: Retrieve a user role by ID
+      operationId: get-role
+      parameters:
+      - description: Role ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Role retrieved
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Role not found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Retrieve a user role by ID
+  /users/check-username:
+    get:
+      consumes:
+      - application/json
+      description: Check the availability of a username
+      parameters:
+      - description: Username to check
+        in: body
+        name: username
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Username available
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Username already taken
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Check the availability of a username
+  /users/login:
+    post:
+      consumes:
+      - application/json
+      description: Login a user
+      parameters:
+      - description: Username
+        in: body
+        name: Username
+        required: true
+        schema:
+          type: string
+      - description: Password
+        in: body
+        name: Password
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login success
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Wrong password
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Error getting user
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Login a user
+  /users/logout:
+    post:
+      consumes:
+      - application/json
+      description: Logout a user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Logout success
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Logout a user
   /users/register:
     post:
       consumes:
@@ -155,19 +543,33 @@ paths:
       - application/json
       responses:
         "201":
-          description: Created
+          description: User created
           schema:
             additionalProperties: true
             type: object
         "400":
-          description: Bad Request
+          description: Invalid request
           schema:
             additionalProperties: true
             type: object
         "409":
-          description: Conflict
+          description: Username already taken
           schema:
             additionalProperties: true
             type: object
       summary: Register a user
+  /users/user-id:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve the ID of the logged-in user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User ID retrieved
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Retrieve the ID of the logged-in user
 swagger: "2.0"

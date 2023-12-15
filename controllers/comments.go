@@ -36,30 +36,37 @@ func NewCommentController(db databases.Database) *commentController {
 // @Failure 500 {object} map[string]any
 // @Router /comments [post]
 func (cc *commentController) CreateComment(ctx echo.Context) error {
-	var comment models.Comment
+	// Extract user ID from the context
 	userID, err := tools.ExtractUserID(ctx)
 	if err != nil {
 		log.Gl.Error(err.Error())
 		return ctx.JSON(http.StatusUnauthorized, echo.Map{"error": "there is a problem with your user"})
 	}
 
+	// Bind the request body to the comment model
+	var comment models.Comment
 	if err := ctx.Bind(&comment); err != nil {
 		log.Gl.Error(err.Error())
 		return ctx.JSON(http.StatusBadRequest, echo.Map{"error": "unable to parse comment"})
 	}
 
+	// Set the user ID for the comment
 	comment.UserID = userID
 
+	// Add the comment to the database
 	if err := cc.db.AddComment(&comment); err != nil {
 		log.Gl.Error(err.Error())
-		return ctx.JSON(http.StatusInternalServerError, echo.Map{"error": "unable to add comment"})
+		return ctx.JSON(http.StatusInternalServerError, echo.Map{})
 	}
 
+	// Prepare the response
 	response := map[string]interface{}{
 		"comment":    comment,
 		"author_id":  userID,
 		"comment_id": comment.ID,
 	}
 	log.Gl.Info("Comment created", zap.Any("response", response))
+
+	// Return the response with status code 201 (Created)
 	return ctx.JSON(http.StatusCreated, response)
 }

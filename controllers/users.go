@@ -45,20 +45,19 @@ type UserLoginRequest struct {
 	Password string `form:"password" json:"password" binding:"required"`
 }
 
-// ShowAccount   godoc
-// @Summary      Register a user
-// @Description  Register a user
-// @Accept       json
-// @Produce      json
-// @Param        Username body string true "Username"
-// @Param        Password body string true "Password"
-// @Param        Email body string true "Email"
-// @Param        FirstName body string false "FirstName"
-// @Param        LastName body string false "LastName"
-// @Success      201 {object} map[string]any
-// @Failure      400 {object} map[string]any
-// @Failure      409 {object} map[string]any
-// @Router       /users/register [post]
+// @Summary Register a user
+// @Description Register a user
+// @Accept json
+// @Produce json
+// @Param Username body string true "Username"
+// @Param Password body string true "Password"
+// @Param Email body string true "Email"
+// @Param FirstName body string false "FirstName"
+// @Param LastName body string false "LastName"
+// @Success 201 {object} map[string]any "User created"
+// @Failure 400 {object} map[string]any "Invalid request"
+// @Failure 409 {object} map[string]any "Username already taken"
+// @Router /users/register [post]
 func (uc *userController) UserRegister(ctx echo.Context) error {
 	var user UserRegisterRequest
 	if ctx.Bind(&user) != nil {
@@ -86,14 +85,17 @@ func (uc *userController) UserRegister(ctx echo.Context) error {
 	return ctx.JSON(http.StatusCreated, echo.Map{"message": "user created", "uid": uid})
 }
 
-// CheckUsername checks the availability of a username.
-// swagger:route GET /users/check-username CheckUsername
-// Checks the availability of a username.
-// responses:
-//
-//	200: map[string]interface{} "Username available"
-//	400: map[string]interface{} "Invalid request"
-//	409: map[string]interface{} "Username already taken"
+// @Summary Login a user
+// @Description Login a user
+// @Accept json
+// @Produce json
+// @Param Username body string true "Username"
+// @Param Password body string true "Password"
+// @Success 200 {object} map[string]interface{} "Login success"
+// @Failure 400 {object} map[string]interface{} "Invalid request"
+// @Failure 401 {object} map[string]interface{} "Wrong password"
+// @Failure 500 {object} map[string]interface{} "Error getting user"
+// @Router /users/login [post]
 func (uc *userController) UserLogin(ctx echo.Context) error {
 	// Decode the body of request
 	var user UserLoginRequest
@@ -120,6 +122,15 @@ func (uc *userController) UserLogin(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, echo.Map{"message": "login success", "session": sn})
 }
 
+// @Summary Check the availability of a username
+// @Description Check the availability of a username
+// @Accept json
+// @Produce json
+// @Param username body string true "Username to check"
+// @Success 200 {object} map[string]interface{} "Username available"
+// @Failure 400 {object} map[string]interface{} "Invalid request"
+// @Failure 409 {object} map[string]interface{} "Username already taken"
+// @Router /users/check-username [get]
 func (uc *userController) CheckUsername(ctx echo.Context) error {
 	var username string
 	if ctx.Bind(&username) != nil {
@@ -131,12 +142,12 @@ func (uc *userController) CheckUsername(ctx echo.Context) error {
 	}
 }
 
-// UserLogout logs out a user.
-// swagger:route POST /users/logout UserLogout
-// Logs out a user.
-// responses:
-//
-//	200: map[string]interface{} "Logout success"
+// @Summary Logout a user
+// @Description Logout a user
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]interface{} "Logout success"
+// @Router /users/logout [post]
 func (uc *userController) UserLogout(ctx echo.Context) error {
 	ctx.SetCookie(&http.Cookie{
 		Name:    "access_token",
@@ -146,12 +157,12 @@ func (uc *userController) UserLogout(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, echo.Map{"message": "logout success"})
 }
 
-// UserID retrieves the ID of the logged-in user.
-// swagger:route GET /users/user-id UserID
-// Retrieves the ID of the logged-in user.
-// responses:
-//
-//	200: map[string]interface{} "User ID retrieved"
+// @Summary Retrieve the ID of the logged-in user
+// @Description Retrieve the ID of the logged-in user
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]interface{} "User ID retrieved"
+// @Router /users/user-id [get]
 func (uc *userController) UserID(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, echo.Map{"user_id": ctx.Get("user_id")})
 }
